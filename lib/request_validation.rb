@@ -2,7 +2,6 @@
 module RequestValidation
 
 protected
-    
   # The URL where we should redirect if we get a bad request. Set to nil if
   # you do not want a redirect (and just test the return value of 
   # validate_request)
@@ -12,31 +11,63 @@ protected
   # request. Set to nil if you do not want flash[:error] to be set.
   @@flash_error_for_bad_request = 'Sorry, your last request could not be processed.'
 
+  # The exception that we use to flag problems that we discover.
+  class RequestError < RuntimeError ; end
+
+  # Represents one key/value parameter pair
+  class ParameterPair
+    attr_accessor :key, :value
+    def initialize(key, value)
+      @key, @value = key, value
+    end
+
+    # Check this parameter's value against the given type.
+    def validate(requirement)
+      # No real checking necessary for text or string
+      return true if requirement == :text or requirement == :string
+      
+      if requirement == :integer
+        unless @value =~ /^\d+$/
+          raise RequestError.new, "#{@key}'s value is not an integer"
+        end
+      else
+        unless @value == requirement
+          raise RequestError.new, "#{value} != '#{requirement}'"
+        end
+      end        
+      true
+    end
+  end
+    
   # Call this method at the beginning of your action to verify that the current
   # parameters match your idea of a valid set of values.
   def validate_request(valid_request_methods=:get, param_requirements={}, param_options={})
     @valid_request_methods = valid_request_methods
     @param_requirements    = param_requirements
     @param_options         = param_options
-    
+
     p = params.dup   # Keep our own copy of params, so that we can modify it.
     extract_standard_params(p)
     @original_params = p.dup
-    
+  
     validate_request_method or return false
     
-    if @param_requirements.empty?
-      return p.empty? ? true : handle_bad_params
-    end
+    begin
+      if @param_requirements.empty?
+        return p.empty? ? true : handle_bad_params
+      end
     
-    process_required_parameters(@param_requirements, p) or return false
+      process_required_parameters(@param_requirements, p) or return false
     
-    process_optional_parameters(@param_options, p) or return false
+      process_optional_parameters(@param_options, p) or return false
     
-    unless p.empty?
-      return handle_bad_params("found extra arguments: #{p.inspect}")
-    end
-    
+      unless p.empty?
+        return handle_bad_params("found extra arguments: #{p.inspect}")
+      end
+    rescue RequestError
+      handle_bad_params
+      return false
+    end  
     true
   end
   
@@ -80,24 +111,7 @@ private
     redirect_to(@@redirect_for_bad_request) unless @@redirect_for_bad_request.nil?
     false    
   end
-  
-  # Check a given key/value pair against its requirement. 
-  def validate_parameter(name, value, requirement)
-    # Check parameter's type
-    if requirement == :integer
-      unless value =~ /^\d+$/
-        return handle_bad_params("#{name}'s value is not an integer")
-      end
-    elsif requirement == :text or requirement == :string
-      # No real checking that we can do
-    else
-      unless value == requirement
-        return handle_bad_params("#{value} != '#{requirement}'")
-      end
-    end        
-    true
-  end    
-  
+    
   # Proceess a set of requirements against the parameters
   def process_required_parameters(requirements, parameters)
     requirements.each do |key, requirement|
@@ -114,11 +128,9 @@ private
           return handle_bad_params("argument #{key.inspect} is not a compound value")
         end
       else
-        if validate_parameter(key, value, requirement) 
-          parameters.delete(key.to_s)
-        else
-          return false
-        end
+        pair = ParameterPair.new(key, value)
+        pair.validate(requirement)
+        parameters.delete(key.to_s)
       end
     end
     true
@@ -138,11 +150,9 @@ private
           return handle_bad_params("argument #{key.inspect} is not a compound value")
         end
       else
-        if validate_parameter(key, value, requirement) 
-          parameters.delete(key.to_s)
-        else
-          return false
-        end
+        pair = ParameterPair.new(key, value)
+        pair.validate(requirement)
+        parameters.delete(key.to_s)
       end
     end
     true
