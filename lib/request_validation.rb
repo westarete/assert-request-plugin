@@ -53,14 +53,6 @@ protected
     begin
       validate_request_method
 
-      if @param_requirements.empty?
-        if p.empty? 
-          return true
-        else
-          raise RequestError.new, "unexpected parameters: #{p.inspect}"
-        end
-      end
-
       process_required_parameters(@param_requirements, p) or return false
     
       process_optional_parameters(@param_options, p) or return false
@@ -101,6 +93,14 @@ private
       
   # Proceess a set of requirements against the parameters
   def process_required_parameters(requirements, parameters)
+    if @param_requirements.empty?
+      if p.empty? 
+        return true
+      else
+        raise RequestError.new, "unexpected parameters: #{p.inspect}"
+      end
+    end
+
     requirements.each do |key, requirement|
       value = parameters[key.to_s]
       if value.nil?
