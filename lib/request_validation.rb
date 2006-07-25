@@ -31,13 +31,7 @@ protected
       return p.empty? ? true : handle_bad_params
     end
     
-    @param_requirements.each do |key, requirement|
-      value = p.delete(key.to_s)
-      if value.nil?
-        return handle_bad_params("missing argument #{key.inspect}")
-      end
-      validate_parameter(key, value, requirement) or return false
-    end
+    process_required_parameters(@param_requirements, p) or return false
     
     @param_options.each do |key, requirement|
       value = p.delete(key.to_s)
@@ -109,5 +103,31 @@ private
     end        
     true
   end    
-      
+  
+  # Proceess a set of requirements against the parameters
+  def process_required_parameters(requirements, parameters)
+    requirements.each do |key, requirement|
+      value = parameters[key.to_s]
+      if value.nil?
+        return handle_bad_params("missing argument #{key.inspect}")
+      end
+      # Look for nested hashes
+      if requirement.kind_of? Hash
+        if value.kind_of? Hash        
+          process_required_parameters(requirement, value) or return false          
+          parameters.delete(key.to_s) if value.empty?
+        else
+          return handle_bad_params("argument #{key.inspect} is not a compound value")
+        end
+      else
+        if validate_parameter(key, value, requirement) 
+          parameters.delete(key.to_s)
+        else
+          return false
+        end
+      end
+    end
+    true
+  end
+  
 end 

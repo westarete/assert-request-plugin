@@ -52,4 +52,9 @@ class RequestValidationController < ActionController::Base
     render_text('success')
   end
   
+  def simple_nested
+    validate_request(:get, :id => :integer, :page => {:count => :integer}) or return
+    render_text('success')
+  end
+  
 end

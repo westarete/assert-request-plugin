@@ -82,6 +82,20 @@ class RequestValidationControllerTest < Test::Unit::TestCase
     assert_invalid_request :post, action, {:id => '4', :per_page => '10'}
   end
   
+  def test_simple_nested_requirements
+    assert_valid_request :get, :simple_nested, :id => '5', :page => {:count => '10'}
+    assert_invalid_request :get, :simple_nested, :id => '5', :page => {:count => '10a'}
+    assert_invalid_request :get, :simple_nested, :id => '5a', :page => {:count => '10'}
+    assert_invalid_request :get, :simple_nested, :id => '5', :page => {:wrong => '10'}
+    assert_invalid_request :get, :simple_nested, :id => '5', :wrong => {:count => '10'}
+    assert_invalid_request :get, :simple_nested, :wrong => '5', :page => {:count => '10'}
+    assert_invalid_request :get, :simple_nested, :id => '5', :page => {:count => '10', :extra => '5'}
+    assert_invalid_request :get, :simple_nested, :id => '5', :page => {}
+    assert_invalid_request :get, :simple_nested, :id => '5', :page => '10'
+    assert_invalid_request :get, :simple_nested, :page => {:count => '10'}
+    assert_invalid_request :get, :simple_nested
+  end
+  
 private
 
   # Works like "get" or "post", only it also asserts that we get a successful
