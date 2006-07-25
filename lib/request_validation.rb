@@ -91,12 +91,6 @@ private
       
   # Proceess a set of requirements against the parameters
   def process_required_parameters(requirements, parameters)
-    if requirements.empty?
-      unless parameters.empty? 
-        raise RequestError.new, "unexpected parameters: #{parameters.inspect}"
-      end
-    end
-
     requirements.each do |key, requirement|
       value = parameters[key.to_s]
       if value.nil?
