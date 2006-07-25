@@ -111,12 +111,17 @@ private
       @params = params.dup
     end
 
+    # As RequiredParams, we raise an exception if we find a missing parameter.
+    def skip_missing_parameter?(key)
+      raise RequestError.new, "missing parameter #{key}"
+    end    
+
     # Remove our params that match the given requirements
     def delete!(requirements, parameters=@params)
       requirements.each do |key, requirement|
         value = parameters[key.to_s]
         if value.nil?
-          raise RequestError.new, "missing parameter #{key}"
+          next if skip_missing_parameter?(key)
         end
         # Look for nested hashes
         if requirement.kind_of? Hash
@@ -142,11 +147,18 @@ private
       @params = params.dup
     end    
     
+    # As OptionalParams, we always skip a missing parameter.
+    def skip_missing_parameter?(key)
+      true
+    end
+    
     # Remove our params that match the given requirements
     def delete!(requirements, parameters=@params)
       requirements.each do |key, requirement|
         value = parameters[key.to_s]
-        next if value.nil?
+        if value.nil?
+          next if skip_missing_parameter?(key)
+        end
         # Look for nested hashes
         if requirement.kind_of? Hash
           unless value.kind_of? Hash        
