@@ -102,18 +102,20 @@ private
         raise RequestError.new, "request method #{@method} is not permitted"
       end      
     end
-  end
+    
+  end # class RequestMethod
   
-  class RequiredParams
+  class AbstractParams
     attr_reader :params
     
     def initialize(params)
       @params = params.dup
     end
 
-    # As RequiredParams, we raise an exception if we find a missing parameter.
+    # Child classes must implement this method, which determines how we 
+    # behave in the face of a missing parameter compared to our requirements.
     def skip_missing_parameter?(key)
-      raise RequestError.new, "missing parameter #{key}"
+      raise "not implemented"
     end    
 
     # Remove our params that match the given requirements
@@ -138,42 +140,20 @@ private
       end
     end
     
-  end # class RequiredParams
+  end # class AbstractParams
+  
+  class RequiredParams < AbstractParams
+    # We always raise an exception if we find a missing parameter.
+    def skip_missing_parameter?(key)
+      raise RequestError.new, "missing parameter #{key}"
+    end        
+  end
     
-  class OptionalParams
-    attr_reader :params
-    
-    def initialize(params)
-      @params = params.dup
-    end    
-    
-    # As OptionalParams, we always skip a missing parameter.
+  class OptionalParams < AbstractParams
+    # We always skip a missing parameter.
     def skip_missing_parameter?(key)
       true
     end
-    
-    # Remove our params that match the given requirements
-    def delete!(requirements, parameters=@params)
-      requirements.each do |key, requirement|
-        value = parameters[key.to_s]
-        if value.nil?
-          next if skip_missing_parameter?(key)
-        end
-        # Look for nested hashes
-        if requirement.kind_of? Hash
-          unless value.kind_of? Hash        
-            raise RequestError.new, "parameter #{key} is not a compound value"
-          end
-          delete!(requirement, value)
-          parameters.delete(key.to_s) if value.empty?
-        else
-          pair = ParameterPair.new(key, value)
-          pair.validate(requirement)
-          parameters.delete(key.to_s)
-        end
-      end
-    end
-    
-  end # class OptionalParams
+  end
     
 end # module RequestValidation
