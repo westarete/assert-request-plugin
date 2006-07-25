@@ -14,8 +14,6 @@ protected
 
   # Call this method at the beginning of your action to verify that the current
   # parameters match your idea of a valid set of values.
-  #
-  # For right now, we only support flat hashes for param_requirements and param_options.
   def validate_request(valid_request_methods=:get, param_requirements={}, param_options={})
     @valid_request_methods = valid_request_methods
     @param_requirements    = param_requirements
@@ -33,11 +31,7 @@ protected
     
     process_required_parameters(@param_requirements, p) or return false
     
-    @param_options.each do |key, requirement|
-      value = p.delete(key.to_s)
-      next if value.nil?
-      validate_parameter(key, value, requirement) or return false
-    end
+    process_optional_parameters(@param_options, p) or return false
     
     unless p.empty?
       return handle_bad_params("found extra arguments: #{p.inspect}")
@@ -115,6 +109,30 @@ private
       if requirement.kind_of? Hash
         if value.kind_of? Hash        
           process_required_parameters(requirement, value) or return false          
+          parameters.delete(key.to_s) if value.empty?
+        else
+          return handle_bad_params("argument #{key.inspect} is not a compound value")
+        end
+      else
+        if validate_parameter(key, value, requirement) 
+          parameters.delete(key.to_s)
+        else
+          return false
+        end
+      end
+    end
+    true
+  end
+    
+  # Proceess a set of requirements against the parameters
+  def process_optional_parameters(requirements, parameters)
+    requirements.each do |key, requirement|
+      value = parameters[key.to_s]
+      next if value.nil?
+      # Look for nested hashes
+      if requirement.kind_of? Hash
+        if value.kind_of? Hash        
+          process_optional_parameters(requirement, value) or return false          
           parameters.delete(key.to_s) if value.empty?
         else
           return handle_bad_params("argument #{key.inspect} is not a compound value")

@@ -102,6 +102,73 @@ class RequestValidationControllerTest < Test::Unit::TestCase
     assert_invalid_request :get, :double_nested, :id => '5', :page => {:author => {:name => 'Jack Black', :extra => '5'}}
     assert_invalid_request :get, :double_nested, :id => '5', :page => {:author => {:name => 'Jack Black'}, :extra => '5'}    
   end
+
+  def test_nested_options
+    action = :double_nested_with_options
+    assert_valid_request :get, action, 
+      :id => '5', 
+      :page => {
+        :author => {
+          :name => 'Jack Black'
+        }
+      }
+    assert_valid_request :get, action, 
+      :id => '5', 
+      :page => {
+        :author => {
+          :name => 'Jack Black', 
+          :optional_email => 'jack@example.com'
+        }
+      }
+    assert_valid_request :get, action, 
+      :id => '5', 
+      :page => {
+        :author => {
+          :name => 'Jack Black', 
+          :optional_email => 'jack@example.com'
+        },
+        :optional_orientation => 'horizontal'
+      }
+    assert_valid_request :get, action, 
+      :id => '5', 
+      :page => {
+        :author => {
+          :name => 'Jack Black', 
+          :optional_email => 'jack@example.com'
+        },
+        :optional_orientation => 'horizontal',
+        :optional_coauthor => {
+          :optional_name => 'Jack Johnson', 
+          :optional_email => 'jj@example.com'
+        },
+      }
+    assert_valid_request :get, action, 
+      :id => '5', 
+      :page => {
+        :author => {
+          :name => 'Jack Black', 
+          :optional_email => 'jack@example.com'
+        },
+        :optional_orientation => 'horizontal',
+        :optional_coauthor => {
+          :optional_name => 'Jack Johnson', 
+        },
+      }
+    assert_invalid_request :get, action, 
+      :id => '5', 
+      :page => {
+        :author => {
+          :name => 'Jack Black', 
+          :optional_email => 'jack@example.com'
+        },
+        :optional_orientation => 'horizontal',
+        :optional_coauthor => {
+          :optional_name => 'Jack Johnson', 
+          :not_allowed => 'bad'
+        },
+      }
+    
+  end
   
 private
 

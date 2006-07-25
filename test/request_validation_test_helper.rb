@@ -62,4 +62,26 @@ class RequestValidationController < ActionController::Base
     render_text('success')
   end
   
+  def double_nested_with_options
+    validate_request(:get, 
+      {
+        :id => :integer, 
+        :page => {
+          :author => {:name => :text},
+        },
+      },
+      {
+        :page => {
+          :author => {:optional_email => :text},
+          :optional_orientation => :text,
+          :optional_coauthor => {
+            :optional_name => :text,
+            :optional_email => :text,
+          },
+        },        
+      }
+    ) or return
+    render_text('success')
+  end
+  
 end

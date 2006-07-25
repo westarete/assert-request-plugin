@@ -1,4 +1,3 @@
-* Support nested hashes for param_requirements and param_options.
 * Support for aspects (REST)
 * Support ActiveRecord models as a shortcut for specifying subhashes. This
   is useful for forms, where most of the parameters match the attributes of
