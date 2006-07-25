@@ -29,7 +29,7 @@ protected
     @original_params = p.dup
       
     begin
-      validate_request_method
+      RequestMethod.new(request.method).validate(@valid_request_methods)
       process_required_parameters(@param_requirements, p)
       process_optional_parameters(@param_options, p)
     
@@ -73,18 +73,26 @@ private
     end
   end
   
-  # Ensure that the current request is via one of the given methods.
-  def validate_request_method
-    # Make sure we're dealing with an array
-    unless @valid_request_methods.respond_to? 'detect'
-      @valid_request_methods = [@valid_request_methods]
-    end 
+  # Represents the request method
+  class RequestMethod
+    
+    def initialize(method)
+      @method = method
+    end
+    
+    # Check the request method against the given set of permissible methods.
+    def validate(requirements)
+      # Make sure we're dealing with an array
+      unless requirements.respond_to? 'detect'
+        requirements = [requirements]
+      end 
 
-    unless @valid_request_methods.detect { |m| request.method == m }
-      raise RequestError.new, "request method #{request.method.inspect} is not permitted"
+      unless requirements.detect { |m| @method == m }
+        raise RequestError.new, "request method #{@method} is not permitted"
+      end      
     end
   end
-      
+        
   # Proceess a set of requirements against the parameters
   def process_required_parameters(requirements, parameters)
     requirements.each do |key, requirement|
