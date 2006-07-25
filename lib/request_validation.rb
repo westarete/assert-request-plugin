@@ -52,10 +52,8 @@ protected
       
     begin
       validate_request_method
-
-      process_required_parameters(@param_requirements, p) or return false
-    
-      process_optional_parameters(@param_options, p) or return false
+      process_required_parameters(@param_requirements, p)
+      process_optional_parameters(@param_options, p)
     
       unless p.empty?
         raise RequestError.new, "unexpected parameters: #{p.inspect}"
@@ -94,9 +92,7 @@ private
   # Proceess a set of requirements against the parameters
   def process_required_parameters(requirements, parameters)
     if requirements.empty?
-      if parameters.empty? 
-        return true
-      else
+      unless parameters.empty? 
         raise RequestError.new, "unexpected parameters: #{parameters.inspect}"
       end
     end
