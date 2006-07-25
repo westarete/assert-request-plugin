@@ -25,18 +25,18 @@ protected
       
       # Verify and eliminate all of the required arguments
       required = RequiredParams.new(original_params)
-      required.delete!(param_requirements)
+      required.validate_and_delete!(param_requirements)
       
       # Continue to verify and eliminate all of the optional arguments
       optional = OptionalParams.new(required.params)
-      optional.delete!(param_options)
+      optional.validate_and_delete!(param_options)
       
       # There shouldn't be anything left
       unexpected = optional.params
       unless unexpected.empty?
-        raise RequestError.new, "unexpected parameters: #{unexpected.inspect}"
+        raise RequestValidationError.new, "unexpected parameters: #{unexpected.inspect}"
       end
-    rescue RequestError
+    rescue RequestValidationError
       logger.error "Bad request: #{$!}" 
       logger.debug "  Method:"
       logger.debug "    permitted: #{valid_request_methods.inspect}"
@@ -56,8 +56,7 @@ protected
   
 private
 
-  # The exception that we use to flag problems that we discover.
-  class RequestError < RuntimeError ; end
+  class RequestValidationError < RuntimeError ; end
 
   # Represents one key/value parameter pair
   class ParameterPair
@@ -71,20 +70,19 @@ private
     def validate(requirement)
       # No real checking necessary for text or string
       return if requirement == :text or requirement == :string
-    
       if requirement == :integer
         unless @value =~ /^\d+$/
-          raise RequestError.new, "bad value for #{@key}: #{@value} is not an integer"
+          raise RequestValidationError.new, "bad value for #{@key}: #{@value} is not an integer"
         end
       else
         unless @value == requirement
-          raise RequestError.new, "bad value for #{@key}: #{@value} != '#{requirement}'"
+          raise RequestValidationError.new, "bad value for #{@key}: #{@value} != '#{requirement}'"
         end
       end        
     end
   end
   
-  # Represents the request method
+  # Defines how we handle and validate the request method.
   class RequestMethod
     
     def initialize(method)
@@ -94,17 +92,16 @@ private
     # Check the request method against the given set of permissible methods.
     def validate(requirements)
       # Make sure we're dealing with an array
-      unless requirements.respond_to? 'detect'
-        requirements = [requirements]
-      end 
-
-      unless requirements.detect { |m| @method == m }
-        raise RequestError.new, "request method #{@method} is not permitted"
+      requirements = [requirements] unless requirements.respond_to? 'detect'
+      unless requirements.detect {|m| @method == m}
+        raise RequestValidationError.new, "request method #{@method} is not permitted"
       end      
     end
     
   end # class RequestMethod
   
+  # An abstract class that describes how we generally treat sets of parameters
+  # and their requirements.
   class AbstractParams
     attr_reader :params
     
@@ -119,36 +116,43 @@ private
     end    
 
     # Remove our params that match the given requirements
-    def delete!(requirements, parameters=@params)
+    def validate_and_delete!(requirements, parameters=@params)
       requirements.each do |key, requirement|
-        value = parameters[key.to_s]
+        # Convert keys from symbols to strings, since that's how they appear
+        # in the params hash.
+        key = key.to_s
+        value = parameters[key]
         if value.nil?
           next if skip_missing_parameter?(key)
         end
         # Look for nested hashes
         if requirement.kind_of? Hash
           unless value.kind_of? Hash        
-            raise RequestError.new, "parameter #{key} is not a compound value"
+            raise RequestValidationError.new, "parameter '#{key}' is not a compound value"
           end
-          delete!(requirement, value)
-          parameters.delete(key.to_s) if value.empty?
+          validate_and_delete!(requirement, value)
+          parameters.delete(key) if value.empty?
         else
           pair = ParameterPair.new(key, value)
           pair.validate(requirement)
-          parameters.delete(key.to_s)
+          parameters.delete(key)
         end
       end
     end
     
   end # class AbstractParams
   
+  # A child of AbstractParams that always requires that the parameters match
+  # the requirements exactly.
   class RequiredParams < AbstractParams
     # We always raise an exception if we find a missing parameter.
     def skip_missing_parameter?(key)
-      raise RequestError.new, "missing parameter #{key}"
+      raise RequestValidationError.new, "missing parameter '#{key}'"
     end        
   end
     
+  # A child of AbstractParams that doesn't mind of some of the permitted 
+  # parameters are missing from the actual parameters.
   class OptionalParams < AbstractParams
     # We always skip a missing parameter.
     def skip_missing_parameter?(key)
