@@ -14,30 +14,41 @@ protected
   # Call this method at the beginning of your action to verify that the current
   # parameters match your idea of a valid set of values.
   def validate_request(valid_request_methods=:get, param_requirements={}, param_options={})
-    @valid_request_methods = valid_request_methods
-    @param_requirements    = param_requirements
-    @param_options         = param_options
-
-    # Make our own working copy of params, since we need to modify it.
-    p = params.dup   
-    
     # Remove the common parameters that are provided on each call, and don't
-    # need to be declared.
-    [:action, :controller, :commit].each {|key| p.delete(key)}
+    # need to be declared to validate_request.
+    original_params = params.dup
+    [:action, :controller, :commit].each {|key| original_params.delete(key)}
     
-    # Preserve this clean copy of the params for logging later.
-    @original_params = p.dup
-      
     begin
-      RequestMethod.new(request.method).validate(@valid_request_methods)
-      process_required_parameters(@param_requirements, p)
-      process_optional_parameters(@param_options, p)
-    
-      unless p.empty?
-        raise RequestError.new, "unexpected parameters: #{p.inspect}"
+      # Validate the request method.
+      RequestMethod.new(request.method).validate(valid_request_methods)
+      
+      # Verify and eliminate all of the required arguments
+      required = RequiredParams.new(original_params)
+      required.delete!(param_requirements)
+      
+      # Continue to verify and eliminate all of the optional arguments
+      optional = OptionalParams.new(required.params)
+      optional.delete!(param_options)
+      
+      # There shouldn't be anything left
+      unexpected = optional.params
+      unless unexpected.empty?
+        raise RequestError.new, "unexpected parameters: #{unexpected.inspect}"
       end
     rescue RequestError
-      handle_bad_request
+      logger.error "Bad request: #{$!}" 
+      logger.debug "  Method:"
+      logger.debug "    permitted: #{valid_request_methods.inspect}"
+      logger.debug "    actual:   #{request.method.inspect}"
+      logger.debug "  Parameters:"
+      logger.debug "    required: #{param_requirements.inspect}"
+      logger.debug "    optional: #{param_options.inspect}"
+      logger.debug "    actual:   #{original_params.inspect}"
+
+      flash[:error] = @@flash_error_for_bad_request unless @@flash_error_for_bad_request.nil?
+      redirect_to(@@redirect_for_bad_request) unless @@redirect_for_bad_request.nil?
+      
       return false
     end  
     true
@@ -92,63 +103,65 @@ private
       end      
     end
   end
-        
-  # Proceess a set of requirements against the parameters
-  def process_required_parameters(requirements, parameters)
-    requirements.each do |key, requirement|
-      value = parameters[key.to_s]
-      if value.nil?
-        raise RequestError.new, "missing parameter #{key.inspect}"
-      end
-      # Look for nested hashes
-      if requirement.kind_of? Hash
-        unless value.kind_of? Hash        
-          raise RequestError.new, "parameter #{key.inspect} is not a compound value"
+  
+  class RequiredParams
+    attr_reader :params
+    
+    def initialize(params)
+      @params = params.dup
+    end
+
+    # Remove our params that match the given requirements
+    def delete!(requirements, parameters=@params)
+      requirements.each do |key, requirement|
+        value = parameters[key.to_s]
+        if value.nil?
+          raise RequestError.new, "missing parameter #{key}"
         end
-        process_required_parameters(requirement, value)
-        parameters.delete(key.to_s) if value.empty?
-      else
-        pair = ParameterPair.new(key, value)
-        pair.validate(requirement)
-        parameters.delete(key.to_s)
+        # Look for nested hashes
+        if requirement.kind_of? Hash
+          unless value.kind_of? Hash        
+            raise RequestError.new, "parameter #{key} is not a compound value"
+          end
+          delete!(requirement, value)
+          parameters.delete(key.to_s) if value.empty?
+        else
+          pair = ParameterPair.new(key, value)
+          pair.validate(requirement)
+          parameters.delete(key.to_s)
+        end
       end
     end
-  end
     
-  # Proceess a set of requirements against the parameters
-  def process_optional_parameters(requirements, parameters)
-    requirements.each do |key, requirement|
-      value = parameters[key.to_s]
-      next if value.nil?
-      # Look for nested hashes
-      if requirement.kind_of? Hash
-        unless value.kind_of? Hash        
-          raise RequestError.new, "parameter #{key.inspect} is not a compound value"
+  end # class RequiredParams
+    
+  class OptionalParams
+    attr_reader :params
+    
+    def initialize(params)
+      @params = params.dup
+    end    
+    
+    # Remove our params that match the given requirements
+    def delete!(requirements, parameters=@params)
+      requirements.each do |key, requirement|
+        value = parameters[key.to_s]
+        next if value.nil?
+        # Look for nested hashes
+        if requirement.kind_of? Hash
+          unless value.kind_of? Hash        
+            raise RequestError.new, "parameter #{key} is not a compound value"
+          end
+          delete!(requirement, value)
+          parameters.delete(key.to_s) if value.empty?
+        else
+          pair = ParameterPair.new(key, value)
+          pair.validate(requirement)
+          parameters.delete(key.to_s)
         end
-        process_optional_parameters(requirement, value)
-        parameters.delete(key.to_s) if value.empty?
-      else
-        pair = ParameterPair.new(key, value)
-        pair.validate(requirement)
-        parameters.delete(key.to_s)
       end
     end
-  end
-  
-  # Give detailed log messages of the bad request, and redirect/set flash if
-  # necessary.
-  def handle_bad_request
-    logger.error "Bad request: #{$!}" 
-    logger.debug "  Method:"
-    logger.debug "    permitted: #{@valid_request_methods.inspect}"
-    logger.debug "    actual:   #{request.method.inspect}"
-    logger.debug "  Parameters:"
-    logger.debug "    required: #{@param_requirements.inspect}"
-    logger.debug "    optional: #{@param_options.inspect}"
-    logger.debug "    actual:   #{@original_params.inspect}"
     
-    flash[:error] = @@flash_error_for_bad_request unless @@flash_error_for_bad_request.nil?
-    redirect_to(@@redirect_for_bad_request) unless @@redirect_for_bad_request.nil?
-  end    
-  
-end 
+  end # class OptionalParams
+    
+end # module RequestValidation
