@@ -10,7 +10,7 @@ protected
   # The message that should be put into flash[:error] if we should get a bad
   # request. Set to nil if you do not want flash[:error] to be set.
   @@flash_error_for_bad_request = 'Sorry, your last request could not be processed.'
-
+  
   # The exception that we use to flag problems that we discover.
   class RequestError < RuntimeError ; end
 
@@ -28,11 +28,11 @@ protected
       
       if requirement == :integer
         unless @value =~ /^\d+$/
-          raise RequestError.new, "#{@key}'s value is not an integer"
+          raise RequestError.new, "bad value for #{@key}: #{@value} is not an integer"
         end
       else
         unless @value == requirement
-          raise RequestError.new, "#{value} != '#{requirement}'"
+          raise RequestError.new, "bad value for #{@key}: #{@value} != '#{requirement}'"
         end
       end        
       true
@@ -49,23 +49,27 @@ protected
     p = params.dup   # Keep our own copy of params, so that we can modify it.
     extract_standard_params(p)
     @original_params = p.dup
-  
-    validate_request_method or return false
-    
+      
     begin
+      validate_request_method
+
       if @param_requirements.empty?
-        return p.empty? ? true : handle_bad_params
+        if p.empty? 
+          return true
+        else
+          raise RequestError.new, "unexpected parameters: #{p.inspect}"
+        end
       end
-    
+
       process_required_parameters(@param_requirements, p) or return false
     
       process_optional_parameters(@param_options, p) or return false
     
       unless p.empty?
-        return handle_bad_params("found extra arguments: #{p.inspect}")
+        raise RequestError.new, "unexpected parameters: #{p.inspect}"
       end
     rescue RequestError
-      handle_bad_params
+      handle_bad_request
       return false
     end  
     true
@@ -90,50 +94,31 @@ private
       @valid_request_methods = [@valid_request_methods]
     end 
 
-    if @valid_request_methods.detect { |m| request.method == m }
-      true
-    else
-      logger.error "Bad request method: permitted #{@valid_request_methods.inspect}, but got #{request.method.inspect}"
-      handle_bad_request
+    unless @valid_request_methods.detect { |m| request.method == m }
+      raise RequestError.new, "request method #{request.method.inspect} is not permitted"
     end
   end
-  
-  # Take care of the case where we've found a bad parameter
-  def handle_bad_params(message=nil)
-    logger.error "Bad parameters: #{message}" unless message.nil? or message.empty?
-    logger.error "Bad parameters:\n  required: #{@param_requirements.inspect},\n  optional: #{@param_options.inspect},\n  actual: #{@original_params.inspect}"
-    handle_bad_request
-  end
-  
-  # Set the flash and redirect for a bad request.
-  def handle_bad_request
-    flash[:error] = @@flash_error_for_bad_request unless @@flash_error_for_bad_request.nil?
-    redirect_to(@@redirect_for_bad_request) unless @@redirect_for_bad_request.nil?
-    false    
-  end
-    
+      
   # Proceess a set of requirements against the parameters
   def process_required_parameters(requirements, parameters)
     requirements.each do |key, requirement|
       value = parameters[key.to_s]
       if value.nil?
-        return handle_bad_params("missing argument #{key.inspect}")
+        raise RequestError.new, "missing parameter #{key.inspect}"
       end
       # Look for nested hashes
       if requirement.kind_of? Hash
-        if value.kind_of? Hash        
-          process_required_parameters(requirement, value) or return false          
-          parameters.delete(key.to_s) if value.empty?
-        else
-          return handle_bad_params("argument #{key.inspect} is not a compound value")
+        unless value.kind_of? Hash        
+          raise RequestError.new, "parameter #{key.inspect} is not a compound value"
         end
+        process_required_parameters(requirement, value)
+        parameters.delete(key.to_s) if value.empty?
       else
         pair = ParameterPair.new(key, value)
         pair.validate(requirement)
         parameters.delete(key.to_s)
       end
     end
-    true
   end
     
   # Proceess a set of requirements against the parameters
@@ -143,19 +128,33 @@ private
       next if value.nil?
       # Look for nested hashes
       if requirement.kind_of? Hash
-        if value.kind_of? Hash        
-          process_optional_parameters(requirement, value) or return false          
-          parameters.delete(key.to_s) if value.empty?
-        else
-          return handle_bad_params("argument #{key.inspect} is not a compound value")
+        unless value.kind_of? Hash        
+          raise RequestError.new, "parameter #{key.inspect} is not a compound value"
         end
+        process_optional_parameters(requirement, value)
+        parameters.delete(key.to_s) if value.empty?
       else
         pair = ParameterPair.new(key, value)
         pair.validate(requirement)
         parameters.delete(key.to_s)
       end
     end
-    true
   end
+  
+  # Give detailed log messages of the bad request, and redirect/set flash if
+  # necessary.
+  def handle_bad_request
+    logger.error "Bad request: #{$!}" 
+    logger.debug "  Method:"
+    logger.debug "    permitted: #{@valid_request_methods.inspect}"
+    logger.debug "    actual:   #{request.method.inspect}"
+    logger.debug "  Parameters:"
+    logger.debug "    required: #{@param_requirements.inspect}"
+    logger.debug "    optional: #{@param_options.inspect}"
+    logger.debug "    actual:   #{@original_params.inspect}"
+    
+    flash[:error] = @@flash_error_for_bad_request unless @@flash_error_for_bad_request.nil?
+    redirect_to(@@redirect_for_bad_request) unless @@redirect_for_bad_request.nil?
+  end    
   
 end 
