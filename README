@@ -1,4 +1,91 @@
 RequestValidation
 =================
 
-Description goes here
+This plugin allows you to specify and check the method and parameters that are
+used to call your actions.
+
+For example, here's a typical action in a typical controller:
+
+  class KittenController < ActionController::Base
+    def show
+			@kitten = Kitten.find(params[:id])
+    end 
+	end
+
+This is ordinarily invoked with a URL such as '/kitten/show/5'. The problem is
+that if someone visits the url '/kitten/show' or /kitten/show/blech', an
+exception will be thrown.
+
+Furthermore, if someone visits the URL '/kitten/show/5&this_kitten=sucks',
+your application will be none the wiser. Nothing will break, but sometimes
+you'd like to know about these things, for instance to detect when you have a
+typo in a GET argument that's originating in another part of your application.
+
+RequestValidation allows you to double check these things, and act
+appropriately. For instance, we could solve the above problem by adding one
+line to our action:
+
+	class KittenController < ActionController::Base
+	  def show
+			validate_request(:get, :id => :integer) or return
+			@kitten = Kitten.find(params[:id])
+	  end 
+	end
+
+The validate_request method will now verify that incoming requests are via the
+GET method, and that they contain one argument called 'id' whose value is an
+integer. If any of these conditions aren't true, the requester is redirected
+to the site's home page (configurable, of course), and flash[:error] is set
+with a polite message (also configurable).
+
+Installation
+============
+
+Install the plugin by running the following commands from your rails
+application's directory:
+
+./script/plugin source http://westarete.com/plugins
+./script/plugin install request_validation
+
+That's it. You're ready to add calls to validate_request to your actions.
+
+Usage
+=====
+
+validate_request accepts three parameters, all of which are optional:
+
+* valid_request_methods - One or more (in an array) symbols representing the
+  HTTP request methods that this action supports. The default is :get.
+* param_requirements - A hash that describes the arguments that are required
+  for this action.
+* param_options - A hash that describes other arguments that this action will
+  accept, but are not required.
+
+validate_request will always return true or false to indicate whether the
+request met the definition or not. If you don't like the default behavior of
+setting flash[:error] and redirecting, you can turn those options off (see
+Configuration, below), and use this return value to implement your own
+behavior.
+
+It's usually a good idea to return from the current action if validate_request
+returns false. This is because redirects in rails do not take effect
+immediately; they only happen once the action has completed. So you'll
+probably need to return explicitly (as in the examples here) to avoid
+executing the rest of your action in the case of a bad request.
+
+Configuration
+=============
+
+By default, invalid requests will be redirected to '/', and flash[:error] will
+be set with a polite error message. You can change this behavior by setting
+the following class variables (for example, within config/application.rb):
+
+@@redirect_for_bad_request Set this to the URL to redirect to if we get a bad
+request. Set to nil if you do not want a redirect (and just want to test the
+return value of validate_request). The default is the URL '/'.
+
+@@flash_error_for_bad_request Set this to the string that should be assigned
+to flash[:error] if we should get a bad request. Set it to nil if you do not
+want flash[:error] to be set at all. The default is a generic yet polite error
+message.
+
