@@ -1,4 +1,4 @@
-class RequestValidationController < ApplicationController
+class RequestValidationController < ActionController::Base
     
   @@redirect_for_bad_request = '/error'
   
