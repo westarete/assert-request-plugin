@@ -93,11 +93,11 @@ private
       
   # Proceess a set of requirements against the parameters
   def process_required_parameters(requirements, parameters)
-    if @param_requirements.empty?
-      if p.empty? 
+    if requirements.empty?
+      if parameters.empty? 
         return true
       else
-        raise RequestError.new, "unexpected parameters: #{p.inspect}"
+        raise RequestError.new, "unexpected parameters: #{parameters.inspect}"
       end
     end
 
