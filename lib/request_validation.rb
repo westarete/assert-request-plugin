@@ -6,7 +6,7 @@ protected
   # The URL where we should redirect if we get a bad request. Set to nil if
   # you do not want a redirect (and just test the return value of 
   # validate_request)
-  @@redirect_for_bad_request = '/guide/list'
+  @@redirect_for_bad_request = '/'
   
   # The message that should be put into flash[:error] if we should get a bad
   # request. Set to nil if you do not want flash[:error] to be set.
