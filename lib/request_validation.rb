@@ -40,11 +40,11 @@ protected
       logger.error "Bad request: #{$!}" 
       logger.debug "  Method:"
       logger.debug "    permitted: #{valid_request_methods.inspect}"
-      logger.debug "    actual:   #{request.method.inspect}"
+      logger.debug "    actual:    #{request.method.inspect}"
       logger.debug "  Parameters:"
-      logger.debug "    required: #{param_requirements.inspect}"
-      logger.debug "    optional: #{param_options.inspect}"
-      logger.debug "    actual:   #{original_params.inspect}"
+      logger.debug "    required:  #{param_requirements.inspect}"
+      logger.debug "    optional:  #{param_options.inspect}"
+      logger.debug "    actual:    #{original_params.inspect}"
 
       flash[:error] = @@flash_error_for_bad_request unless @@flash_error_for_bad_request.nil?
       redirect_to(@@redirect_for_bad_request) unless @@redirect_for_bad_request.nil?
