@@ -57,4 +57,9 @@ class RequestValidationController < ActionController::Base
     render_text('success')
   end
   
+  def double_nested
+    validate_request(:get, :id => :integer, :page => {:author => {:name => :text}}) or return
+    render_text('success')
+  end
+  
 end

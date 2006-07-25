@@ -96,6 +96,13 @@ class RequestValidationControllerTest < Test::Unit::TestCase
     assert_invalid_request :get, :simple_nested
   end
   
+  def test_double_nested_requirements
+    assert_valid_request :get, :double_nested, :id => '5', :page => {:author => {:name => 'Jack Black'}}
+    assert_invalid_request :get, :double_nested, :id => '5', :page => {:author => 'Jack'}
+    assert_invalid_request :get, :double_nested, :id => '5', :page => {:author => {:name => 'Jack Black', :extra => '5'}}
+    assert_invalid_request :get, :double_nested, :id => '5', :page => {:author => {:name => 'Jack Black'}, :extra => '5'}    
+  end
+  
 private
 
   # Works like "get" or "post", only it also asserts that we get a successful
