@@ -11,34 +11,6 @@ protected
   # request. Set to nil if you do not want flash[:error] to be set.
   @@flash_error_for_bad_request = 'Sorry, your last request could not be processed.'
   
-  # The exception that we use to flag problems that we discover.
-  class RequestError < RuntimeError ; end
-
-  # Represents one key/value parameter pair
-  class ParameterPair
-    attr_accessor :key, :value
-    def initialize(key, value)
-      @key, @value = key, value
-    end
-
-    # Check this parameter's value against the given type.
-    def validate(requirement)
-      # No real checking necessary for text or string
-      return true if requirement == :text or requirement == :string
-      
-      if requirement == :integer
-        unless @value =~ /^\d+$/
-          raise RequestError.new, "bad value for #{@key}: #{@value} is not an integer"
-        end
-      else
-        unless @value == requirement
-          raise RequestError.new, "bad value for #{@key}: #{@value} != '#{requirement}'"
-        end
-      end        
-      true
-    end
-  end
-    
   # Call this method at the beginning of your action to verify that the current
   # parameters match your idea of a valid set of values.
   def validate_request(valid_request_methods=:get, param_requirements={}, param_options={})
@@ -46,8 +18,14 @@ protected
     @param_requirements    = param_requirements
     @param_options         = param_options
 
-    p = params.dup   # Keep our own copy of params, so that we can modify it.
-    extract_standard_params(p)
+    # Make our own working copy of params, since we need to modify it.
+    p = params.dup   
+    
+    # Remove the common parameters that are provided on each call, and don't
+    # need to be declared.
+    [:action, :controller, :commit].each {|key| p.delete(key)}
+    
+    # Preserve this clean copy of the params for logging later.
     @original_params = p.dup
       
     begin
@@ -67,16 +45,34 @@ protected
   
 private
 
-  # Remove common parameters such as :action, :controller, and :commmit from 
-  # the given hash and return them.
-  def extract_standard_params(p)
-    standard_params = {}
-    [:action, :controller, :commit].each do |key|
-      standard_params[key] = p.delete(key)
-    end
-    standard_params
-  end
+  # The exception that we use to flag problems that we discover.
+  class RequestError < RuntimeError ; end
 
+  # Represents one key/value parameter pair
+  class ParameterPair
+    attr_accessor :key, :value
+  
+    def initialize(key, value)
+      @key, @value = key, value
+    end
+
+    # Check this parameter's value against the given type.
+    def validate(requirement)
+      # No real checking necessary for text or string
+      return if requirement == :text or requirement == :string
+    
+      if requirement == :integer
+        unless @value =~ /^\d+$/
+          raise RequestError.new, "bad value for #{@key}: #{@value} is not an integer"
+        end
+      else
+        unless @value == requirement
+          raise RequestError.new, "bad value for #{@key}: #{@value} != '#{requirement}'"
+        end
+      end        
+    end
+  end
+  
   # Ensure that the current request is via one of the given methods.
   def validate_request_method
     # Make sure we're dealing with an array
