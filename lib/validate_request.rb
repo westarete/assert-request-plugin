@@ -1,3 +1,6 @@
+# validate_request Rails Plugin
+#
+# (c) Copyright 2006 by West Arete Computing, Inc.
 
 module ValidateRequest
 
