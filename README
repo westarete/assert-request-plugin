@@ -1,5 +1,4 @@
-ValidateRequest
-=================
+== ValidateRequest
 
 This plugin allows you to specify and check the method and parameters that are
 used to call your actions.
@@ -32,67 +31,64 @@ line to our action:
     end 
   end
 
-The validate_request method will now verify that incoming requests are via the
-GET method, and that they contain one argument called 'id' whose value is an
-integer. If any of these conditions aren't true, the requester is redirected
-to the site's home page (configurable, of course), and flash[:error] is set
-with a polite message (also configurable).
+The +validate_request+ method will now verify that incoming requests are via
+the GET method, and that they contain one argument called 'id' whose value is
+an integer. If any of these conditions aren't true, the requester is
+redirected to the site's home page (configurable, of course), and
+<tt>flash[:error]</tt> is set with a polite message (also configurable).
 
-Installation
-============
+== Installation
 
 Install the plugin by running the following commands from your rails
 application's directory:
 
-./script/plugin source svn://rubyforge.org//var/svn/validaterequest/plugins
-./script/plugin install validate_request
+  ./script/plugin source svn://rubyforge.org//var/svn/validaterequest/plugins
+  ./script/plugin install validate_request
 
-That's it. You're ready to add calls to validate_request to your actions.
+That's it. You're ready to add calls to +validate_request+ to your actions.
 
-Usage
-=====
+== Usage
 
-validate_request accepts three parameters, all of which are optional:
++validate_request+ accepts three parameters, all of which are optional:
 
-* valid_request_methods - One or more (in an array) symbols representing the
+* +valid_request_methods+ - One or more (in an array) symbols representing the
   HTTP request methods that this action supports. The default is :get.
-* param_requirements - A hash that describes the arguments that are required
+* +param_requirements+ - A hash that describes the arguments that are required
   for this action.
-* param_options - A hash that describes other arguments that this action will
-  accept, but are not required.
+* +param_options+ - A hash that describes other arguments that this action 
+  will accept, but are not required.
 
-validate_request will always return true or false to indicate whether the
++validate_request+ will always return true or false to indicate whether the
 request met the definition or not. If you don't like the default behavior of
-setting flash[:error] and redirecting, you can turn those options off (see
+setting <tt>flash[:error]</tt> and redirecting, you can turn those options off (see
 Configuration, below), and use this return value to implement your own
 behavior.
 
-It's usually a good idea to return from the current action if validate_request
-returns false. This is because redirects in rails do not take effect
-immediately; they only happen once the action has completed. So you'll
-probably need to return explicitly (as in the examples here) to avoid
+It's usually a good idea to return from the current action if
++validate_request+ returns false. This is because redirects in rails do not
+take effect immediately; they only happen once the action has completed. So
+you'll probably need to return explicitly (as in the examples here) to avoid
 executing the rest of your action in the case of a bad request.
 
-Configuration
-=============
+== Configuration
 
-By default, invalid requests will be redirected to '/', and flash[:error] will
-be set with a polite error message. You can change this behavior by setting
-the following class variables (for example, within config/application.rb):
+By default, invalid requests will be redirected to '/', and <tt>flash[:error]</tt>
+will be set with a polite error message. You can change this behavior by
+setting the following class variables (for example, within
+<tt>config/application.rb</tt>):
 
-@@redirect_for_bad_request Set this to the URL to redirect to if we get a bad
-request. Set to nil if you do not want a redirect (and just want to test the
-return value of validate_request). The default is the URL '/'.
+* *@@redirect_for_bad_request* - Set this to the URL to redirect to if we get
+  a bad request. Set to nil if you do not want a redirect (and just want to
+  test the return value of validate_request). The default is the URL '/'.
 
-@@flash_error_for_bad_request Set this to the string that should be assigned
-to flash[:error] if we should get a bad request. Set it to nil if you do not
-want flash[:error] to be set at all. The default is a generic yet polite error
-message.
+* *@@flash_error_for_bad_request* - Set this to the string that should be
+  assigned to <tt>flash[:error]</tt> if we should get a bad request. Set it to
+  +nil+ if you do not want <tt>flash[:error]</tt> to be set at all. The
+  default is a generic yet polite error message.
 
-Author
-======
+== Author
 
-Scott A. Woods
-West Arete Computing, Inc.
-http://westarete.com
-scott@westarete.com
+  Scott A. Woods
+  West Arete Computing, Inc.
+  http://westarete.com
+  scott@westarete.com
