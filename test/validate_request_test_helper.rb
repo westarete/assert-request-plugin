@@ -2,6 +2,13 @@
 #
 # (c) Copyright 2006 by West Arete Computing, Inc.
 
+# Simple model to use while testing ActiveRecord requirement types.
+class Dog < ActiveRecord::Base ; end
+
+# A controller with fake actions that we can call to test their different
+# request requirements. All actions render the text 'success' if the 
+# request was deemed to be valid, and redirect if the request was deemed to
+# be invalid.
 class ValidateRequestController < ActionController::Base
     
   @@redirect_for_bad_request = '/error'
@@ -55,6 +62,14 @@ class ValidateRequestController < ActionController::Base
     validate_request(:get, {:id => :integer}, {:per_page => :integer}) or return
     render_text('success')
   end
+
+  # Coming Soon!
+  # def enumerated_type
+  #   validate_request(:get, 
+  #                   {:id => :integer},
+  #                   {:orientation => ['horizontal', 'vertical']}) or return
+  #   render_text('success')    
+  # end
   
   def simple_nested
     validate_request(:get, :id => :integer, :page => {:count => :integer}) or return
@@ -85,6 +100,16 @@ class ValidateRequestController < ActionController::Base
         },        
       }
     ) or return
+    render_text('success')
+  end
+  
+  def required_dog
+    validate_request(:get, {:id => :integer, :dog => Dog}) or return
+    render_text('success')
+  end
+  
+  def optional_dog
+    validate_request(:get, {:id => :integer}, {:dog => Dog}) or return
     render_text('success')
   end
   

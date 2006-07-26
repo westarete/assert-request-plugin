@@ -47,48 +47,56 @@ application's directory:
 
 That's it. You're ready to add calls to +validate_request+ to your actions.
 
-== Usage
+== Quick Start
 
-+validate_request+ accepts three parameters, all of which are optional:
+The above examples show you how to specify simple scalar requirements for the
+parameters. Here are some more examples of different options and types to get
+you started. Read the USAGE file if you'd like even more detail.
 
-* +valid_request_methods+ - One or more (in an array) symbols representing the
-  HTTP request methods that this action supports. The default is :get.
-* +param_requirements+ - A hash that describes the arguments that are required
-  for this action.
-* +param_options+ - A hash that describes other arguments that this action 
-  will accept, but are not required.
+You can allow more than one type of request method by making the first 
+argument an array:
 
-+validate_request+ will always return true or false to indicate whether the
-request met the definition or not. If you don't like the default behavior of
-setting <tt>flash[:error]</tt> and redirecting, you can turn those options off (see
-Configuration, below), and use this return value to implement your own
-behavior.
+  def show
+    validate_request([:get, :post], :id => :integer) or return
 
-It's usually a good idea to return from the current action if
-+validate_request+ returns false. This is because redirects in rails do not
-take effect immediately; they only happen once the action has completed. So
-you'll probably need to return explicitly (as in the examples here) to avoid
-executing the rest of your action in the case of a bad request.
+You can specify a second hash of parameter constraints, which are considered
+optional. For example, the following declaration states that the request can
+have an optional parameter +:orientation+ (but it must have the integer 
+parameter +:id+):
 
-== Configuration
+  def show
+    validate_request(:get, 
+                     {:id => :integer}, 
+                     {:orientation => :text}) or return
+    ...                     
 
-By default, invalid requests will be redirected to '/', and <tt>flash[:error]</tt>
-will be set with a polite error message. You can change this behavior by
-setting the following class variables (for example, within
-<tt>config/application.rb</tt>):
+You can nest parameters:
 
-* *@@redirect_for_bad_request* - Set this to the URL to redirect to if we get
-  a bad request. Set to nil if you do not want a redirect (and just want to
-  test the return value of validate_request). The default is the URL '/'.
+  def show_author
+    validate_request(:get 
+                     :id => :integer, 
+                     :author => {:name => :text}) or return
+    ...                     
 
-* *@@flash_error_for_bad_request* - Set this to the string that should be
-  assigned to <tt>flash[:error]</tt> if we should get a bad request. Set it to
-  +nil+ if you do not want <tt>flash[:error]</tt> to be set at all. The
-  default is a generic yet polite error message.
+To simplify common CRUD form operations, you can specify ActiveRecord models
+as types. For example:
+
+  def update
+    validate_request(:post, 
+                     {:id => :integer}, 
+                     {:kitten => Kitten}) or return
+    ...
+
+which requires an integer +:id+, and optionally can include a +:kitten+
+parameter, whose value is a hash of any of the column names and types from the
+Kitten model.
+
+Once again, read the USAGE file if you'd like more detail about what's
+allowed, and how things work.
 
 == Author
 
   Scott A. Woods
   West Arete Computing, Inc.
   http://westarete.com
-  scott@westarete.com
+  scott at westarete dot com

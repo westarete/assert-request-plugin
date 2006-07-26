@@ -1,18 +1,3 @@
-* Support for aspects (REST)
-
-* Support ActiveRecord models as a shortcut for specifying subhashes. This
-  is useful for forms, where most of the parameters match the attributes of
-  an ActiveRecord model. For example:
-
-  class DogController < ActionController::Base
-    ...
-    # A typical update method for a class that controls Dogs.
-    def update
-      # Requests to this action must be via the POST method, must have an
-      # integer :id argument, and must have a :dog argument, whose value is
-      # a hash that corresponds to the attributes of the Dog model.
-      validate_request(:post, {:id => :integer, :dog => Dog})
-      ...
-    end
-    ...
-  end
+* Support for "enumerated types", e.g. :admin => ['t', 'f']
+* Support for RESTful aspects (the stuff after the semicolon)
+* Support for all basic ActiveRecord types, beyond :text and :integer.

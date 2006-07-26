@@ -53,6 +53,14 @@ class ValidateRequestControllerTest < Test::Unit::TestCase
     assert_invalid_request :get, :one_integer_one_specific, {:id => '4a', :orientation => 'horizontal', :extra => 'hi'}
     assert_invalid_request :get, :one_integer_one_specific, {:id => '4a', :orientation => 'vertical'}
   end
+
+  # Coming Soon!  
+  # def test_enumerated_type
+  #   assert_valid_request :get, :enumerated_type, {:id => '4', :orientation => 'horizontal'}
+  #   assert_valid_request :get, :enumerated_type, {:id => '4', :orientation => 'vertical'}
+  #   assert_valid_request :get, :enumerated_type, {:id => '4'}
+  #   assert_invalid_request :get, :enumerated_type, {:id => '4', :orientation => 'diagonal'}
+  # end
   
   def test_request_methods
     assert_valid_request :get, :get_only
@@ -171,7 +179,28 @@ class ValidateRequestControllerTest < Test::Unit::TestCase
           :not_allowed => 'bad'
         },
       }
-    
+  end
+
+  def test_required_model
+    assert_valid_request :get, :required_dog, :id => '5', :dog => {:name => 'luther', :breed => 'bouvier', :age_in_years => '12'}
+    assert_invalid_request :get, :required_dog, :id => '5', :dog => {:name => 'luther', :breed => 'bouvier', :age_in_years => '12a'}
+    assert_invalid_request :get, :required_dog, :id => '5a', :dog => {:name => 'luther', :breed => 'bouvier', :age_in_years => '12'}
+    assert_invalid_request :get, :required_dog, :id => '5', :dog => {:breed => 'bouvier', :age_in_years => '12'}
+    assert_invalid_request :get, :required_dog, :id => '5', :dog => {:name => 'luther', :breed => 'bouvier', :age_in_years => '12', :extra => 'bad'}
+    assert_invalid_request :get, :required_dog, :id => '5', :dog => {}
+    assert_invalid_request :get, :required_dog, :id => '5', :dog => ''
+    assert_invalid_request :get, :required_dog, :id => '5', :dog => nil
+  end
+  
+  def test_optional_model
+    assert_valid_request :get, :optional_dog, :id => '5', :dog => {:name => 'luther', :breed => 'bouvier', :age_in_years => '12'}
+    assert_valid_request :get, :optional_dog, :id => '5', :dog => {:breed => 'bouvier', :age_in_years => '12'}
+    assert_valid_request :get, :optional_dog, :id => '5', :dog => {}
+    assert_valid_request :get, :optional_dog, :id => '5'
+    assert_invalid_request :get, :optional_dog, :id => '5', :dog => ''
+    assert_invalid_request :get, :optional_dog, :id => '5', :dog => nil
+    assert_invalid_request :get, :optional_dog, :id => '5', :dog => {:name => 'luther', :breed => 'bouvier', :age_in_years => '12a'}
+    assert_invalid_request :get, :optional_dog, :id => '5', :dog => {:name => 'luther', :breed => 'bouvier', :age_in_years => '12', :extra => 'bad'}    
   end
   
 private

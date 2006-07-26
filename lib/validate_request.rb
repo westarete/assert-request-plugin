@@ -112,23 +112,24 @@ private
       @params = params.dup
     end
 
-    # Child classes must implement this method, which determines how we 
-    # behave in the face of a missing parameter compared to our requirements.
-    def skip_missing_parameter?(key)
-      raise "not implemented"
-    end    
-
     # Remove our params that match the given requirements
     def validate_and_delete!(requirements, parameters=@params)
       requirements.each do |key, requirement|
         # Convert keys from symbols to strings, since that's how they appear
         # in the params hash.
         key = key.to_s
+
         value = parameters[key]
         if value.nil?
           next if skip_missing_parameter?(key)
         end
-        # Look for nested hashes
+        
+        # If the requirement is an ActiveRecord class, expand it into a 
+        # requirements hash of its content columns and their types.
+        if is_model? requirement
+          requirement = expand_active_record_to_hash_requirement(requirement)
+        end
+        
         if requirement.kind_of? Hash
           unless value.kind_of? Hash        
             raise ValidateRequestError.new, "parameter '#{key}' is not a compound value"
@@ -136,11 +137,37 @@ private
           validate_and_delete!(requirement, value)
           parameters.delete(key) if value.empty?
         else
-          pair = ParameterPair.new(key, value)
-          pair.validate(requirement)
+          ParameterPair.new(key, value).validate(requirement)
           parameters.delete(key)
         end
       end
+    end
+    
+  protected
+
+    # Child classes must implement this method, which determines how we 
+    # behave in the face of a missing parameter compared to our requirements.
+    def skip_missing_parameter?(key)
+      raise "not implemented"
+    end    
+
+  private
+    
+    # Determine if the given requirement is an ActiveRecord model.
+    def is_model?(requirement)
+      requirement.respond_to? :ancestors and
+        requirement.ancestors.detect {|a| a == ActiveRecord::Base}
+    end
+
+    # Expand the given ActiveRecord::Base class into a requirements hash of 
+    # its content columns and their types.
+    def expand_active_record_to_hash_requirement(klass)
+      requirements = {}
+      klass.content_columns.each do |column|
+        # For right now, we only support integer and text.
+        requirements[column.name] = column.type == :integer ? :integer : :text
+      end
+      requirements
     end
     
   end # class AbstractParams
@@ -148,6 +175,7 @@ private
   # A child of AbstractParams that always requires that the parameters match
   # the requirements exactly.
   class RequiredParams < AbstractParams
+  protected
     # We always raise an exception if we find a missing parameter.
     def skip_missing_parameter?(key)
       raise ValidateRequestError.new, "missing parameter '#{key}'"
@@ -157,6 +185,7 @@ private
   # A child of AbstractParams that doesn't mind of some of the permitted 
   # parameters are missing from the actual parameters.
   class OptionalParams < AbstractParams
+  protected
     # We always skip a missing parameter.
     def skip_missing_parameter?(key)
       true
