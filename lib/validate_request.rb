@@ -1,5 +1,5 @@
 
-module RequestValidation
+module ValidateRequest
 
 protected
   # The URL where we should redirect if we get a bad request. Set to nil if
@@ -34,9 +34,9 @@ protected
       # There shouldn't be anything left
       unexpected = optional.params
       unless unexpected.empty?
-        raise RequestValidationError.new, "unexpected parameters: #{unexpected.inspect}"
+        raise ValidateRequestError.new, "unexpected parameters: #{unexpected.inspect}"
       end
-    rescue RequestValidationError
+    rescue ValidateRequestError
       logger.error "Bad request: #{$!}" 
       logger.debug "  Method:"
       logger.debug "    permitted: #{valid_request_methods.inspect}"
@@ -56,7 +56,7 @@ protected
   
 private
 
-  class RequestValidationError < RuntimeError ; end
+  class ValidateRequestError < RuntimeError ; end
 
   # Represents one key/value parameter pair
   class ParameterPair
@@ -72,11 +72,11 @@ private
       return if requirement == :text or requirement == :string
       if requirement == :integer
         unless @value =~ /^\d+$/
-          raise RequestValidationError.new, "bad value for #{@key}: #{@value} is not an integer"
+          raise ValidateRequestError.new, "bad value for #{@key}: #{@value} is not an integer"
         end
       else
         unless @value == requirement
-          raise RequestValidationError.new, "bad value for #{@key}: #{@value} != '#{requirement}'"
+          raise ValidateRequestError.new, "bad value for #{@key}: #{@value} != '#{requirement}'"
         end
       end        
     end
@@ -94,7 +94,7 @@ private
       # Make sure we're dealing with an array
       requirements = [requirements] unless requirements.respond_to? 'detect'
       unless requirements.detect {|m| @method == m}
-        raise RequestValidationError.new, "request method #{@method} is not permitted"
+        raise ValidateRequestError.new, "request method #{@method} is not permitted"
       end      
     end
     
@@ -128,7 +128,7 @@ private
         # Look for nested hashes
         if requirement.kind_of? Hash
           unless value.kind_of? Hash        
-            raise RequestValidationError.new, "parameter '#{key}' is not a compound value"
+            raise ValidateRequestError.new, "parameter '#{key}' is not a compound value"
           end
           validate_and_delete!(requirement, value)
           parameters.delete(key) if value.empty?
@@ -147,7 +147,7 @@ private
   class RequiredParams < AbstractParams
     # We always raise an exception if we find a missing parameter.
     def skip_missing_parameter?(key)
-      raise RequestValidationError.new, "missing parameter '#{key}'"
+      raise ValidateRequestError.new, "missing parameter '#{key}'"
     end        
   end
     
@@ -160,4 +160,4 @@ private
     end
   end
     
-end # module RequestValidation
+end # module ValidateRequest

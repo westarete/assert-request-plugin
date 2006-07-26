@@ -1,13 +1,13 @@
 require File.dirname(__FILE__) + '/test_helper' 
-require File.dirname(__FILE__) + '/../lib/request_validation'
-require File.dirname(__FILE__) + '/request_validation_test_helper'
+require File.dirname(__FILE__) + '/../lib/validate_request'
+require File.dirname(__FILE__) + '/validate_request_test_helper'
 
 # Re-raise errors caught by the controller.
-class RequestValidationController; def rescue_action(e) raise e end; end
+class ValidateRequestController; def rescue_action(e) raise e end; end
 
-class RequestValidationControllerTest < Test::Unit::TestCase
+class ValidateRequestControllerTest < Test::Unit::TestCase
   def setup
-    @controller = RequestValidationController.new
+    @controller = ValidateRequestController.new
     @request    = ActionController::TestRequest.new
     @response   = ActionController::TestResponse.new
   end

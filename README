@@ -1,4 +1,4 @@
-RequestValidation
+ValidateRequest
 =================
 
 This plugin allows you to specify and check the method and parameters that are
@@ -21,7 +21,7 @@ your application will be none the wiser. Nothing will break, but sometimes
 you'd like to know about these things, for instance to detect when you have a
 typo in a GET argument that's originating in another part of your application.
 
-RequestValidation allows you to double check these things, and act
+ValidateRequest allows you to double check these things, and act
 appropriately. For instance, we could solve the above problem by adding one
 line to our action:
 
@@ -45,7 +45,7 @@ Install the plugin by running the following commands from your rails
 application's directory:
 
 ./script/plugin source svn://rubyforge.org//var/svn/validaterequest/plugins
-./script/plugin install request_validation
+./script/plugin install validate_request
 
 That's it. You're ready to add calls to validate_request to your actions.
 
