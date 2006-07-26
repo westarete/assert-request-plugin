@@ -8,9 +8,9 @@ For example, here's a typical action in a typical controller:
 
   class KittenController < ActionController::Base
     def show
-			@kitten = Kitten.find(params[:id])
+      @kitten = Kitten.find(params[:id])
     end 
-	end
+  end
 
 This is ordinarily invoked with a URL such as '/kitten/show/5'. The problem is
 that if someone visits the url '/kitten/show' or /kitten/show/blech', an
@@ -25,12 +25,12 @@ ValidateRequest allows you to double check these things, and act
 appropriately. For instance, we could solve the above problem by adding one
 line to our action:
 
-	class KittenController < ActionController::Base
-	  def show
-			validate_request(:get, :id => :integer) or return
-			@kitten = Kitten.find(params[:id])
-	  end 
-	end
+  class KittenController < ActionController::Base
+    def show
+      validate_request(:get, :id => :integer) or return
+      @kitten = Kitten.find(params[:id])
+    end 
+  end
 
 The validate_request method will now verify that incoming requests are via the
 GET method, and that they contain one argument called 'id' whose value is an
