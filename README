@@ -44,7 +44,7 @@ Installation
 Install the plugin by running the following commands from your rails
 application's directory:
 
-./script/plugin source http://westarete.com/plugins
+./script/plugin source svn://rubyforge.org//var/svn/validaterequest/plugins
 ./script/plugin install request_validation
 
 That's it. You're ready to add calls to validate_request to your actions.
@@ -89,3 +89,10 @@ to flash[:error] if we should get a bad request. Set it to nil if you do not
 want flash[:error] to be set at all. The default is a generic yet polite error
 message.
 
+Author
+======
+
+Scott A. Woods
+West Arete Computing, Inc.
+http://westarete.com
+scott@westarete.com
