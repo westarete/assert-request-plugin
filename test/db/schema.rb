@@ -4,5 +4,13 @@ ActiveRecord::Schema.define(:version => 1) do
     t.column :name, :string
     t.column :breed, :string
     t.column :age_in_years, :integer
+    # We include these columns to make sure that they're ignored by 
+    # ActiveRecord-style constraints.
+    t.column :created_at, :timestamp
+    t.column :updated_at, :timestamp
+    t.column :created_on, :date
+    t.column :updated_on, :date
+    t.column :created_by, :integer
+    t.column :updated_by, :integer
   end
 end

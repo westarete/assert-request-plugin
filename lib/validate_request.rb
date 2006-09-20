@@ -158,14 +158,24 @@ private
       requirement.respond_to? :ancestors and
         requirement.ancestors.detect {|a| a == ActiveRecord::Base}
     end
+    
+    # Pick out the desired content columns from the given activerecord class.
+    def validate_columns(klass)
+      ignore = %w( created_at updated_at created_on updated_on created_by updated_by )
+      columns = []
+      klass.content_columns.each do |column|
+        columns << column unless ignore.detect {|name| name == column.name }
+      end
+      columns
+    end
 
     # Expand the given ActiveRecord::Base class into a requirements hash of 
     # its content columns and their types.
     def expand_active_record_to_hash_requirement(klass)
       requirements = {}
-      klass.content_columns.each do |column|
+      validate_columns(klass).each do |column|
         # For right now, we only support integer and text.
-        requirements[column.name] = column.type == :integer ? :integer : :text
+        requirements[column.name] = (column.type == :integer) ? :integer : :text
       end
       requirements
     end
