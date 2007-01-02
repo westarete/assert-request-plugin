@@ -4,62 +4,56 @@
 
 module ValidateRequest
 
-protected
-  # The URL where we should redirect if we get a bad request. Set to nil if
-  # you do not want a redirect (and just test the return value of 
-  # validate_request)
-  @@redirect_for_bad_request = '/'
-  
-  # The message that should be put into flash[:error] if we should get a bad
-  # request. Set to nil if you do not want flash[:error] to be set.
-  @@flash_error_for_bad_request = 'Sorry, your last request could not be processed.'
-  
+  protected
+
+  # The exception that we raise when we find an invalid request.
+  class RequestError < RuntimeError ; end
+
   # Call this method at the beginning of your action to verify that the current
   # parameters match your idea of a valid set of values.
-  def validate_request(valid_request_methods=:get, param_requirements={}, param_options={})
+  def assert_valid_request(valid_request_methods=:get, param_requirements={}, param_options={})
     # Remove the common parameters that are provided on each call, and don't
     # need to be declared to validate_request.
     original_params = params.dup
     [:action, :controller, :commit].each {|key| original_params.delete(key)}
     
-    begin
-      # Validate the request method.
-      RequestMethod.new(request.method).validate(valid_request_methods)
-      
-      # Verify and eliminate all of the required arguments
-      required = RequiredParams.new(original_params)
-      required.validate_and_delete!(param_requirements)
-      
-      # Continue to verify and eliminate all of the optional arguments
-      optional = OptionalParams.new(required.params)
-      optional.validate_and_delete!(param_options)
-      
-      # There shouldn't be anything left
-      unexpected = optional.params
-      unless unexpected.empty?
-        raise ValidateRequestError.new, "unexpected parameters: #{unexpected.inspect}"
-      end
-    rescue ValidateRequestError
-      logger.error "Bad request: #{$!}" 
-      logger.debug "  Method:"
-      logger.debug "    permitted: #{valid_request_methods.inspect}"
-      logger.debug "    actual:    #{request.method.inspect}"
-      logger.debug "  Parameters:"
-      logger.debug "    required:  #{param_requirements.inspect}"
-      logger.debug "    optional:  #{param_options.inspect}"
-      logger.debug "    actual:    #{original_params.inspect}"
-
-      flash[:error] = @@flash_error_for_bad_request unless @@flash_error_for_bad_request.nil?
-      redirect_to(@@redirect_for_bad_request) unless @@redirect_for_bad_request.nil?
-      
-      return false
-    end  
+    # Validate the request method.
+    RequestMethod.new(request.method).validate(valid_request_methods)
+    
+    # Verify and eliminate all of the required arguments
+    required = RequiredParams.new(original_params)
+    required.validate_and_delete!(param_requirements)
+    
+    # Continue to verify and eliminate all of the optional arguments
+    optional = OptionalParams.new(required.params)
+    optional.validate_and_delete!(param_options)
+    
+    # There shouldn't be anything left
+    unexpected = optional.params
+    unless unexpected.empty?
+      raise RequestError, "unexpected parameters: #{unexpected.inspect}"
+    end
+    
     true
+  rescue RequestError
+    # Temporarily intercept the exception here so that we can log the details.
+    logger.error "Bad request: #{$!}" 
+    logger.debug "  Method:"
+    logger.debug "    permitted: #{valid_request_methods.inspect}"
+    logger.debug "    actual:    #{request.method.inspect}"
+    logger.debug "  Parameters:"
+    logger.debug "    required:  #{param_requirements.inspect}"
+    logger.debug "    optional:  #{param_options.inspect}"
+    logger.debug "    actual:    #{original_params.inspect}"
+    raise
   end
   
-private
-
-  class ValidateRequestError < RuntimeError ; end
+  # TODO: Remove validate_request alias before v1.0
+  # validate_request is deprecated, but included for now for backwards 
+  # compatibility.
+  alias_method :validate_request, :assert_valid_request
+  
+  private
 
   # Represents one key/value parameter pair
   class ParameterPair
@@ -74,12 +68,12 @@ private
       # No real checking necessary for text or string
       return if requirement == :text or requirement == :string
       if requirement == :integer
-        unless @value =~ /^\d+$/
-          raise ValidateRequestError.new, "bad value for #{@key}: #{@value} is not an integer"
+        unless @value.to_s =~ /^\d+$/
+          raise RequestError, "bad value for #{@key}: #{@value} is not an integer"
         end
       else
         unless @value == requirement
-          raise ValidateRequestError.new, "bad value for #{@key}: #{@value} != '#{requirement}'"
+          raise RequestError, "bad value for #{@key}: #{@value} != '#{requirement}'"
         end
       end        
     end
@@ -97,7 +91,7 @@ private
       # Make sure we're dealing with an array
       requirements = [requirements] unless requirements.respond_to? 'detect'
       unless requirements.detect {|m| @method == m}
-        raise ValidateRequestError.new, "request method #{@method} is not permitted"
+        raise RequestError, "request method #{@method} is not permitted"
       end      
     end
     
@@ -132,7 +126,7 @@ private
         
         if requirement.kind_of? Hash
           unless value.kind_of? Hash        
-            raise ValidateRequestError.new, "parameter '#{key}' is not a compound value"
+            raise RequestError, "parameter '#{key}' is not a compound value"
           end
           validate_and_delete!(requirement, value)
           parameters.delete(key) if value.empty?
@@ -143,7 +137,7 @@ private
       end
     end
     
-  protected
+    protected
 
     # Child classes must implement this method, which determines how we 
     # behave in the face of a missing parameter compared to our requirements.
@@ -151,7 +145,7 @@ private
       raise "not implemented"
     end    
 
-  private
+    private
     
     # Determine if the given requirement is an ActiveRecord model.
     def is_model?(requirement)
@@ -185,17 +179,17 @@ private
   # A child of AbstractParams that always requires that the parameters match
   # the requirements exactly.
   class RequiredParams < AbstractParams
-  protected
+    protected
     # We always raise an exception if we find a missing parameter.
     def skip_missing_parameter?(key)
-      raise ValidateRequestError.new, "missing parameter '#{key}'"
+      raise RequestError, "missing parameter '#{key}'"
     end        
   end
     
   # A child of AbstractParams that doesn't mind of some of the permitted 
   # parameters are missing from the actual parameters.
   class OptionalParams < AbstractParams
-  protected
+    protected
     # We always skip a missing parameter.
     def skip_missing_parameter?(key)
       true

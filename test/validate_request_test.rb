@@ -205,19 +205,19 @@ class ValidateRequestControllerTest < Test::Unit::TestCase
   
 private
 
-  # Works like "get" or "post", only it also asserts that we get a successful
-  # response from validate_request.
+  # Works like "get" or "post", only it also asserts that the request was 
+  # successfully validated.
   def assert_valid_request(method, *args)
     self.send(method.to_s, *args)
     assert_response :success
+  rescue ValidateRequest::RequestError => e
+    flunk "Received a RequestError exception, but wasn't expecting one: <#{e}>"
   end
   
   # Works like "get" or "post", only it also asserts that we get a failure
-  # response from validate_request.
+  # for the given request.
   def assert_invalid_request(method, *args)
-    self.send(method.to_s, *args)
-    assert_response :redirect
-    assert_redirected_to '/error'    
+    assert_raise(ValidateRequest::RequestError) { self.send(method.to_s, *args) }
   end
   
 end

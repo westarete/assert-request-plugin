@@ -10,79 +10,78 @@ class Dog < ActiveRecord::Base ; end
 # request was deemed to be valid, and redirect if the request was deemed to
 # be invalid.
 class ValidateRequestController < ActionController::Base
+  include ValidateRequest
     
-  @@redirect_for_bad_request = '/error'
-  
   def none
-    validate_request(:get) or return
+    assert_valid_request(:get)
     render_text('success')
   end  
   
   def one_integer
-    validate_request(:get, :id => :integer) or return
+    assert_valid_request(:get, :id => :integer)
     render_text('success')
   end
   
   def two_integers
-    validate_request(:get, :id => :integer, :count => :integer) or return
+    assert_valid_request(:get, :id => :integer, :count => :integer)
     render_text('success')
   end
   
   def one_specific
-    validate_request(:get, :orientation => 'horizontal') or return
+    assert_valid_request(:get, :orientation => 'horizontal')
     render_text('success')
   end
   
   def one_integer_one_specific
-    validate_request(:get, :id => :integer, :orientation => 'horizontal') or return
+    assert_valid_request(:get, :id => :integer, :orientation => 'horizontal')
     render_text('success')
   end  
   
   def get_only
-    validate_request(:get) or return
+    assert_valid_request(:get)
     render_text('success')
   end
 
   def post_only
-    validate_request(:post) or return
+    assert_valid_request(:post)
     render_text('success')
   end
 
   def put_only
-    validate_request(:put) or return
+    assert_valid_request(:put)
     render_text('success')
   end
 
   def get_or_post
-    validate_request([:get, :post]) or return
+    assert_valid_request([:get, :post])
     render_text('success')
   end
   
   def one_required_integer_one_optional_integer
-    validate_request(:get, {:id => :integer}, {:per_page => :integer}) or return
+    assert_valid_request(:get, {:id => :integer}, {:per_page => :integer})
     render_text('success')
   end
 
   # Coming Soon!
   # def enumerated_type
-  #   validate_request(:get, 
+  #   assert_valid_request(:get, 
   #                   {:id => :integer},
-  #                   {:orientation => ['horizontal', 'vertical']}) or return
+  #                   {:orientation => ['horizontal', 'vertical']})
   #   render_text('success')    
   # end
   
   def simple_nested
-    validate_request(:get, :id => :integer, :page => {:count => :integer}) or return
+    assert_valid_request(:get, :id => :integer, :page => {:count => :integer})
     render_text('success')
   end
   
   def double_nested
-    validate_request(:get, :id => :integer, :page => {:author => {:name => :text}}) or return
+    assert_valid_request(:get, :id => :integer, :page => {:author => {:name => :text}})
     render_text('success')
   end
   
   def double_nested_with_options
-    validate_request(:get, 
+    assert_valid_request(:get, 
       {
         :id => :integer, 
         :page => {
@@ -99,17 +98,17 @@ class ValidateRequestController < ActionController::Base
           },
         },        
       }
-    ) or return
+    )
     render_text('success')
   end
   
   def required_dog
-    validate_request(:get, {:id => :integer, :dog => Dog}) or return
+    assert_valid_request(:get, {:id => :integer, :dog => Dog})
     render_text('success')
   end
   
   def optional_dog
-    validate_request(:get, {:id => :integer}, {:dog => Dog}) or return
+    assert_valid_request(:get, {:id => :integer}, {:dog => Dog})
     render_text('success')
   end
   
