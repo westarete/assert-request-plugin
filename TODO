@@ -1,3 +1,17 @@
 * Support for "enumerated types", e.g. :admin => ['t', 'f']
+* Support for regular expressions, e.g. :email => /\w+@\w+/ . This isn't 
+  useful for user input (use validation instead), but would be handy for when
+  accepting action-to-action arguments that shouldn't be messed with.
 * Support for RESTful aspects (the stuff after the semicolon)
 * Support for all basic ActiveRecord types, beyond :text and :integer.
+* Support for protocol (http vs https)
+* Implement block-style declarations for better readability, e.g.:
+	assert_valid_request do
+	  method   :get, :post			# either method OK
+	  protocol :https			# require SSL
+	  required :id, :page, :visible		# don't care about values
+	  required :email_ownership_id => :integer
+	  required :email => {:address => :string}
+	  optional :horizontal => :boolean
+	  optional :author => Author
+	end
