@@ -1,11 +1,11 @@
-* Support for "enumerated types", e.g. :admin => ['t', 'f']
+* Support for "enumerated types", e.g. :colors => ['red', 'blue', 'green']
 * Support for regular expressions, e.g. :email => /\w+@\w+/ . This isn't 
   useful for user input (use validation instead), but would be handy for when
   accepting action-to-action arguments (e.g. hidden form fields) that 
   shouldn't be messed with.
 * Support for RESTful aspects (the stuff after the semicolon)
-* Support for all basic ActiveRecord types, beyond :text and :integer.
-* Support for protocol (http vs https)
+* Support for :boolean type
+* Support for protocol :http and :https
 * Right now, block doesn't support adding nested arguments in multiple 
   declarations. So instead of this:
 	assert_valid_request do |r|
@@ -16,3 +16,15 @@
 	assert_valid_request do |r|
 	  r.required :name => {:first => :string, :last => :string}
 	end
+* Support :except for activerecord requirements, e.g.
+	assert_valid_request do |r|
+	  r.request  :post
+	  r.required :person => Person, :except => [:admin, :school_id]
+	end
+  This way we get the short-cut benefit of using the ActiveRecord model as
+  a requirement, but we don't have to throw it away if there's a column or
+  two that shouldn't be in there. If there's no activerecord requirement in 
+  the declaration, then :except is treated like a normal parameter declaration.
+* Allow people to set/alter the default set of exclude columns. For example,
+  in their environment.rb:
+	ValidateRequest::ActiveRecordRequirement.ignore_columns.push %w( created_by updated_by )
