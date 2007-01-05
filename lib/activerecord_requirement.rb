@@ -3,7 +3,7 @@ module ValidateRequest
   class ActiveRecordRequirement
     attr_reader :requirements, :klass
 
-    IGNORE_COLUMNS = %w( created_at updated_at created_on updated_on created_by updated_by )
+    IGNORE_COLUMNS = %w( id created_at updated_at created_on updated_on created_by updated_by )
 
     def initialize(klass)
       @klass = klass
@@ -38,7 +38,7 @@ module ValidateRequest
     
     # Pick out the desired content columns for this activerecord class.
     def init_columns
-      @klass.content_columns.each do |c|
+      @klass.columns.each do |c|
         @columns << c unless IGNORE_COLUMNS.detect {|name| name == c.name }
       end
     end
