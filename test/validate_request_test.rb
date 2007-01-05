@@ -207,8 +207,18 @@ private
 
   # Works like "get" or "post", only it also asserts that the request was 
   # successfully validated.
-  def assert_valid_request(method, *args)
-    self.send(method.to_s, *args)
+  def assert_valid_request(method, url, *args)
+    # We need to dup our args, since assert_response seems to add an extra
+    # :only_path key to the hash. This looks like a rails bug.
+    if args.first
+      args2 = [args.first.dup]
+    else
+      args2 = args.dup
+    end
+      
+    self.send(method.to_s, url.to_s, *args)
+    assert_response :success
+    self.send(method.to_s, url.to_s + "_with_block", *args2)
     assert_response :success
   rescue ValidateRequest::RequestError => e
     flunk "Received a RequestError exception, but wasn't expecting one: <#{e}>"
@@ -216,8 +226,9 @@ private
   
   # Works like "get" or "post", only it also asserts that we get a failure
   # for the given request.
-  def assert_invalid_request(method, *args)
-    assert_raise(ValidateRequest::RequestError) { self.send(method.to_s, *args) }
+  def assert_invalid_request(method, url, *args)
+    assert_raise(ValidateRequest::RequestError) { self.send(method.to_s, url.to_s, *args) }
+    assert_raise(ValidateRequest::RequestError) { self.send(method.to_s, url.to_s + "_with_block", *args) }
   end
   
 end
