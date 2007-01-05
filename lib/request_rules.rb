@@ -4,15 +4,18 @@ module ValidateRequest
     attr_reader :methods, :requirements, :options
 
     def initialize(methods=[], requirements={}, options={})
-      @methods      = methods
-      @requirements = requirements
-      @options    = options
+      @methods      = []
+      @requirements = {}
+      @options      = {}
+      method(methods)
+      required(requirements)
+      optional(options)
     end
 
     # Add one or more request methods (symbol name, e.g. :get) to the list of  
     # permitted methods. 
     def method(*methods)
-      @methods = @methods.concat methods
+      @methods = @methods.concat(methods).flatten
     end
 
     # Add one or more parameter definitions (e.g. :id => :integer) to the

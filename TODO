@@ -6,3 +6,13 @@
 * Support for RESTful aspects (the stuff after the semicolon)
 * Support for all basic ActiveRecord types, beyond :text and :integer.
 * Support for protocol (http vs https)
+* Right now, block doesn't support adding nested arguments in multiple 
+  declarations. So instead of this:
+	assert_valid_request do |r|
+	  r.required :name => {:first => :string}
+	  r.required :name => {:last  => :string}
+	end
+  you have to do this:
+	assert_valid_request do |r|
+	  r.required :name => {:first => :string, :last => :string}
+	end
