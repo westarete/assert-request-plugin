@@ -8,25 +8,61 @@ module ValidateRequest
 
   # The exception that we raise when we find an invalid request.
   class RequestError < RuntimeError ; end
+  
+  # Holds the definition of the rules for a valid request
+  class RequestRules
+    attr_reader :methods, :requirements, :options
 
+    def initialize(methods=[], requirements={}, options={})
+      @methods      = methods
+      @requirements = requirements
+      @options    = options
+    end
+
+    # Add one or more request methods (symbol name, e.g. :get) to the list of  
+    # permitted methods. 
+    def method(*methods)
+      @methods = @methods.concat methods
+    end
+
+    # Add one or more parameter definitions (e.g. :id => :integer) to the
+    # list of required parameters.
+    def required(requirements)
+      @requirements.merge! requirements
+    end
+
+    # Add one or more parameter definitions (e.g. :author => :string) to the
+    # list of optional parameters.
+    def optional(options)
+      @options.merge! options
+    end    
+  end
+  
   # Call this method at the beginning of your action to verify that the current
   # parameters match your idea of a valid set of values.
-  def assert_valid_request(valid_request_methods=:get, param_requirements={}, param_options={})
+  def assert_valid_request(methods=:get, requirements={}, options={})
+    if block_given?
+      rules = RequestRules.new
+      yield rules
+    else
+      rules = RequestRules.new(methods, requirements, options)
+    end
+    
     # Remove the common parameters that are provided on each call, and don't
     # need to be declared to validate_request.
     original_params = params.dup
     [:action, :controller, :commit].each {|key| original_params.delete(key)}
     
     # Validate the request method.
-    RequestMethod.new(request.method).validate(valid_request_methods)
+    RequestMethod.new(request.method).validate(rules.methods)
     
     # Verify and eliminate all of the required arguments
     required = RequiredParams.new(original_params)
-    required.validate_and_delete!(param_requirements)
+    required.validate_and_delete!(rules.requirements)
     
     # Continue to verify and eliminate all of the optional arguments
     optional = OptionalParams.new(required.params)
-    optional.validate_and_delete!(param_options)
+    optional.validate_and_delete!(rules.options)
     
     # There shouldn't be anything left
     unexpected = optional.params
@@ -39,11 +75,11 @@ module ValidateRequest
     # Temporarily intercept the exception here so that we can log the details.
     logger.error "Bad request: #{$!}" 
     logger.debug "  Method:"
-    logger.debug "    permitted: #{valid_request_methods.inspect}"
+    logger.debug "    permitted: #{rules.methods.inspect}"
     logger.debug "    actual:    #{request.method.inspect}"
     logger.debug "  Parameters:"
-    logger.debug "    required:  #{param_requirements.inspect}"
-    logger.debug "    optional:  #{param_options.inspect}"
+    logger.debug "    required:  #{rules.requirements.inspect}"
+    logger.debug "    optional:  #{rules.options.inspect}"
     logger.debug "    actual:    #{original_params.inspect}"
     raise
   end
