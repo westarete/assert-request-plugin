@@ -10,7 +10,5 @@ ActiveRecord::Schema.define(:version => 1) do
     t.column :updated_at, :timestamp
     t.column :created_on, :date
     t.column :updated_on, :date
-    t.column :created_by, :integer
-    t.column :updated_by, :integer
   end
 end

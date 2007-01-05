@@ -2,8 +2,12 @@ module ValidateRequest
   # Represents a requirement whose type is an ActiveRecord class.
   class ActiveRecordRequirement
     attr_reader :requirements, :klass
+    cattr_accessor :ignore_columns
 
-    IGNORE_COLUMNS = %w( id created_at updated_at created_on updated_on created_by updated_by )
+    # The set of columns in the ActiveRecord model that we should ignore by
+    # default. You could modify this in your environment.rb if its default 
+    # settings don't suit your appliction. 
+    @@ignore_columns = %w( id created_at updated_at created_on updated_on )
 
     def initialize(klass)
       @klass = klass
@@ -39,7 +43,7 @@ module ValidateRequest
     # Pick out the desired content columns for this activerecord class.
     def init_columns
       @klass.columns.each do |c|
-        @columns << c unless IGNORE_COLUMNS.detect {|name| name == c.name }
+        @columns << c unless @@ignore_columns.detect {|name| name == c.name }
       end
     end
 

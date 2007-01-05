@@ -25,6 +25,3 @@
   a requirement, but we don't have to throw it away if there's a column or
   two that shouldn't be in there. If there's no activerecord requirement in 
   the declaration, then :except is treated like a normal parameter declaration.
-* Allow people to set/alter the default set of exclude columns. For example,
-  in their environment.rb:
-	ValidateRequest::ActiveRecordRequirement.ignore_columns.push %w( created_by updated_by )
