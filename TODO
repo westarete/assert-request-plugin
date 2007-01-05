@@ -25,3 +25,5 @@
   a requirement, but we don't have to throw it away if there's a column or
   two that shouldn't be in there. If there's no activerecord requirement in 
   the declaration, then :except is treated like a normal parameter declaration.
+* Deprecate calling assert_valid_request without a block -- the syntax is too
+  complex to do gracefully in one statement (e.g. :except).

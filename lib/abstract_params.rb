@@ -15,23 +15,12 @@ module ValidateRequest
     # Remove our params that match the given requirements
     def validate_and_delete!(requirements, parameters=@params)
       requirements.each do |key, requirement|
-        # Convert keys from symbols to strings, since that's how they appear
-        # in the params hash.
-        key = key.to_s
-        
         # Look for this requirement in the given parameters. Let the child
         # class (optional vs. required) tell us what to do if it's missing.
-        value = parameters[key]
+        # Params hash uses strings (not symbols) for keys, so we convert.
+        value = parameters[key.to_s]
         if value.nil?
           next if skip_missing_parameter?(key)
-        end
-        
-        # If the requirement is an ActiveRecord class, expand it into a 
-        # requirements hash of its content columns and their types. This 
-        # effectively simulates the user having specified all of the model's
-        # columns by hand using the standard hash notation.
-        if ActiveRecordRequirement.is_model? requirement
-          requirement = ActiveRecordRequirement.new(requirement).to_hash
         end
         
         if requirement.kind_of? Hash
