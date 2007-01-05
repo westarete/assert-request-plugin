@@ -47,9 +47,9 @@ class RequestRulesTest < Test::Unit::TestCase
   
   def test_options_via_new
     assert_equal({}, RequestRules.new.options)
-    assert_equal({:id => :integer}, RequestRules.new(:get, :id => :integer).options)
-    assert_equal({:id => :integer, :name => :string}, RequestRules.new(:get, :id => :integer, :name => :string).options)
-    assert_equal({:id => :integer, :name => {:first => :string}}, RequestRules.new(:get, :id => :integer, :name => { :first => :string }).options)
+    assert_equal({:id => :integer}, RequestRules.new(:get, {}, :id => :integer).options)
+    assert_equal({:id => :integer, :name => :string}, RequestRules.new(:get, {}, :id => :integer, :name => :string).options)
+    assert_equal({:id => :integer, :name => {:first => :string}}, RequestRules.new(:get, {}, :id => :integer, :name => { :first => :string }).options)
   end
   
   def test_additive_options
