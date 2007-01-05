@@ -55,10 +55,5 @@ module ValidateRequest
     logger.debug "    actual:    #{original_params.inspect}"
     raise
   end
-  
-  # TODO: Remove validate_request alias before v1.0
-  # validate_request is deprecated, but included for now for backwards 
-  # compatibility.
-  alias_method :validate_request, :assert_valid_request
-  
+    
 end
