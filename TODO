@@ -8,13 +8,13 @@
 * Support for protocol :http and :https
 * Right now, block doesn't support adding nested arguments in multiple 
   declarations. So instead of this:
-	assert_valid_request do |r|
+	assert_request do |r|
 	  r.required :name => {:first => :string}
 	  r.required :name => {:last  => :string}
 	end
   you have to do this:
-	assert_valid_request do |r|
+	assert_request do |r|
 	  r.required :name => {:first => :string, :last => :string}
 	end
-* Deprecate calling assert_valid_request without a block -- the syntax is too
+* Deprecate calling assert_request without a block -- the syntax is too
   complex to do gracefully in one statement (e.g. :except).

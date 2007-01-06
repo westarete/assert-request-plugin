@@ -12,7 +12,7 @@ module ValidateRequest
 
   # Call this method at the beginning of your action to verify that the current
   # parameters match your idea of a valid set of values.
-  def assert_valid_request(methods=:get, requirements={}, options={})
+  def assert_request(methods=:get, requirements={}, options={})
     if block_given?
       rules = RequestRules.new
       yield rules
@@ -59,6 +59,6 @@ module ValidateRequest
   # TODO: Remove validate_request alias before v1.0
   # validate_request is deprecated, but included for now for backwards 
   # compatibility.
-  alias_method :validate_request, :assert_valid_request
+  alias_method :validate_request, :assert_request
   
 end

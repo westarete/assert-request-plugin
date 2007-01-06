@@ -13,24 +13,24 @@ class ValidateRequestController < ActionController::Base
   include ValidateRequest
     
   def none
-    assert_valid_request(:get)
+    assert_request(:get)
     render_text('success')
   end  
   
   def none_with_block
-    assert_valid_request do |r|
+    assert_request do |r|
       r.method :get
     end
     render_text('success')
   end
   
   def one_integer
-    assert_valid_request(:get, :id => :integer)
+    assert_request(:get, :id => :integer)
     render_text('success')
   end
   
   def one_integer_with_block
-    assert_valid_request do |r|
+    assert_request do |r|
       r.method   :get
       r.required :id => :integer
     end
@@ -38,12 +38,12 @@ class ValidateRequestController < ActionController::Base
   end
 
   def two_integers
-    assert_valid_request(:get, :id => :integer, :count => :integer)
+    assert_request(:get, :id => :integer, :count => :integer)
     render_text('success')
   end
   
   def two_integers_with_block
-    assert_valid_request do |r|
+    assert_request do |r|
       r.method   :get
       r.required :id => :integer
       r.required :count => :integer
@@ -52,12 +52,12 @@ class ValidateRequestController < ActionController::Base
   end
 
   def one_specific
-    assert_valid_request(:get, :orientation => 'horizontal')
+    assert_request(:get, :orientation => 'horizontal')
     render_text('success')
   end
   
   def one_specific_with_block
-    assert_valid_request do |r|
+    assert_request do |r|
       r.method   :get
       r.required :orientation => 'horizontal'
     end
@@ -66,12 +66,12 @@ class ValidateRequestController < ActionController::Base
   
   
   def one_integer_one_specific
-    assert_valid_request(:get, :id => :integer, :orientation => 'horizontal')
+    assert_request(:get, :id => :integer, :orientation => 'horizontal')
     render_text('success')
   end  
   
   def one_integer_one_specific_with_block
-    assert_valid_request do |r|
+    assert_request do |r|
       r.method :get
       r.required :id => :integer, :orientation => 'horizontal'
     end
@@ -79,60 +79,60 @@ class ValidateRequestController < ActionController::Base
   end  
   
   def get_only
-    assert_valid_request(:get)
+    assert_request(:get)
     render_text('success')
   end
 
   def get_only_with_block
-    assert_valid_request do |r|
+    assert_request do |r|
       r.method :get
     end
     render_text('success')
   end
 
   def post_only
-    assert_valid_request(:post)
+    assert_request(:post)
     render_text('success')
   end
 
   def post_only_with_block
-    assert_valid_request do |r|
+    assert_request do |r|
       r.method :post
     end
     render_text('success')
   end
 
   def put_only
-    assert_valid_request(:put)
+    assert_request(:put)
     render_text('success')
   end
 
   def put_only_with_block
-    assert_valid_request do |r|
+    assert_request do |r|
       r.method :put
     end
     render_text('success')
   end
 
   def get_or_post
-    assert_valid_request([:get, :post])
+    assert_request([:get, :post])
     render_text('success')
   end
   
   def get_or_post_with_block
-    assert_valid_request do |r|
+    assert_request do |r|
       r.method :get, :post
     end
     render_text('success')
   end
 
   def one_required_integer_one_optional_integer
-    assert_valid_request(:get, {:id => :integer}, {:per_page => :integer})
+    assert_request(:get, {:id => :integer}, {:per_page => :integer})
     render_text('success')
   end
 
   def one_required_integer_one_optional_integer_with_block
-    assert_valid_request do |r|
+    assert_request do |r|
       r.method   :get
       r.required :id       => :integer
       r.optional :per_page => :integer
@@ -142,19 +142,19 @@ class ValidateRequestController < ActionController::Base
 
   # Coming Soon!
   # def enumerated_type
-  #   assert_valid_request(:get, 
+  #   assert_request(:get, 
   #                   {:id => :integer},
   #                   {:orientation => ['horizontal', 'vertical']})
   #   render_text('success')    
   # end
   
   def simple_nested
-    assert_valid_request(:get, :id => :integer, :page => {:count => :integer})
+    assert_request(:get, :id => :integer, :page => {:count => :integer})
     render_text('success')
   end
   
   def simple_nested_with_block
-    assert_valid_request do |r|
+    assert_request do |r|
       r.method :get
       r.required :id => :integer
       r.required :page => {:count => :integer}
@@ -163,12 +163,12 @@ class ValidateRequestController < ActionController::Base
   end
   
   def double_nested
-    assert_valid_request(:get, :id => :integer, :page => {:author => {:name => :text}})
+    assert_request(:get, :id => :integer, :page => {:author => {:name => :text}})
     render_text('success')
   end
   
   def double_nested_with_block
-    assert_valid_request do |r|
+    assert_request do |r|
       r.method :get
       r.required :id => :integer
       r.required :page => {:author => {:name => :text}}
@@ -177,7 +177,7 @@ class ValidateRequestController < ActionController::Base
   end
   
   def double_nested_with_options
-    assert_valid_request(:get, 
+    assert_request(:get, 
       {
         :id => :integer, 
         :page => {
@@ -199,7 +199,7 @@ class ValidateRequestController < ActionController::Base
   end
   
   def double_nested_with_options_with_block
-    assert_valid_request do |r|
+    assert_request do |r|
       r.method   :get
       r.required :id => :integer
       r.required :page => {:author => {:name => :text}}
@@ -217,12 +217,12 @@ class ValidateRequestController < ActionController::Base
   
   
   def required_dog
-    assert_valid_request(:get, {:id => :integer, :dog => Dog})
+    assert_request(:get, {:id => :integer, :dog => Dog})
     render_text('success')
   end
   
   def required_dog_with_block
-    assert_valid_request do |r|
+    assert_request do |r|
       r.method :get
       r.required :id  => :integer
       r.required :dog => Dog
@@ -231,12 +231,12 @@ class ValidateRequestController < ActionController::Base
   end
   
   def optional_dog
-    assert_valid_request(:get, {:id => :integer}, {:dog => Dog})
+    assert_request(:get, {:id => :integer}, {:dog => Dog})
     render_text('success')
   end
   
   def optional_dog_with_block
-    assert_valid_request do |r|
+    assert_request do |r|
       r.method :get
       r.required :id  => :integer
       r.optional :dog => Dog
