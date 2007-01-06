@@ -51,12 +51,12 @@ module ValidateRequest
     
     # Return the hash representation of requirements for this ActiveRecord
     # model.
-    def expand_model(klass, columns_to_ignore)
+    def expand_model(klass, ignore)
       returning Hash.new do |expanded|
         # Pick out the desired columns from the model.
         columns = []
         klass.columns.each do |c|
-          columns << c unless columns_to_ignore.detect {|name| name == c.name }
+          columns << c unless ignore.detect {|name| name == c.name }
         end
         # Convert each activerecord type into a type that we recognize.
         columns.each do |c|
@@ -70,12 +70,13 @@ module ValidateRequest
     # hash. Returns the complete set of columns to ignore for this level, and
     # removes any except clauses (if appropriate) from the params argument.
     def columns_to_ignore(params)
-      returning @@ignore_columns do |columns|
+      returning @@ignore_columns.dup do |columns|
         # Don't remove the :except clause unless there's a model to go with it.
         # Otherwise, we presume that there's actually a parameter named :except.
         if contains_model? params and params.has_key? :except
           columns << params.delete(:except)
           columns.flatten!
+          columns.map! { |c| c.to_s }
         end
       end
     end

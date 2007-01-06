@@ -16,14 +16,5 @@
 	assert_valid_request do |r|
 	  r.required :name => {:first => :string, :last => :string}
 	end
-* Support :except for activerecord requirements, e.g.
-	assert_valid_request do |r|
-	  r.request  :post
-	  r.required :person => Person, :except => [:admin, :school_id]
-	end
-  This way we get the short-cut benefit of using the ActiveRecord model as
-  a requirement, but we don't have to throw it away if there's a column or
-  two that shouldn't be in there. If there's no activerecord requirement in 
-  the declaration, then :except is treated like a normal parameter declaration.
 * Deprecate calling assert_valid_request without a block -- the syntax is too
   complex to do gracefully in one statement (e.g. :except).
