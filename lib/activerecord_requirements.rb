@@ -1,12 +1,22 @@
 module ValidateRequest
   # Represents a requirement whose type is an ActiveRecord class.
-  class ActiveRecordRequirement
-    cattr_accessor :ignore_columns
+  class ActiveRecordRequirements
     
     # The set of columns in the ActiveRecord model that we should ignore by
     # default. You could modify this in your environment.rb if its default 
     # settings don't suit your appliction. 
     @@ignore_columns = %w( id created_at updated_at created_on updated_on )
+    
+    # I had to define the cattr_accessor methods myself, since I kept getting
+    # an error that cattr_accessor was not defined. Couldn't solve it the 
+    # right way.
+    def self.ignore_columns
+      @@ignore_columns
+    end
+    
+    def self.ignore_columns=(new_value)
+      @@ignore_columns = new_value
+    end
 
     def initialize(requirements)
       @requirements = requirements
@@ -63,7 +73,7 @@ module ValidateRequest
       returning @@ignore_columns do |columns|
         # Don't remove the :except clause unless there's a model to go with it.
         # Otherwise, we presume that there's actually a parameter named :except.
-        if contains_model? params
+        if contains_model? params and params.has_key? :except
           columns << params.delete(:except)
           columns.flatten!
         end
