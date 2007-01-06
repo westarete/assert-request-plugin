@@ -1,5 +1,4 @@
 require 'parameter_pair'
-require 'activerecord_requirement'
 require 'request_error'
 
 module ValidateRequest

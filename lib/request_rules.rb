@@ -1,3 +1,5 @@
+require 'activerecord_requirement'
+
 module ValidateRequest
   # Holds the definition of the rules for a valid request
   class RequestRules
