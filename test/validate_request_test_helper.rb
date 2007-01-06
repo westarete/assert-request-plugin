@@ -243,5 +243,29 @@ class ValidateRequestController < ActionController::Base
     end
     render :nothing => true
   end
+  
+  def must_be_ssl
+    assert_request(:get, {}, {}, :https)
+    render :nothing => true
+  end
+  
+  def must_be_ssl_with_block
+    assert_request do |r|
+      r.method :get
+      r.protocol :https
+    end
+    render :nothing => true
+  end
+  
+  def default_method_is_get
+    assert_request
+    render :nothing => true
+  end
+
+  def default_method_is_get_with_block
+    assert_request do |r|
+    end
+    render :nothing => true
+  end
 
 end

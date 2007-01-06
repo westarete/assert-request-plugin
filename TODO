@@ -4,8 +4,6 @@
   accepting action-to-action arguments (e.g. hidden form fields) that 
   shouldn't be messed with.
 * Support for RESTful aspects (the stuff after the semicolon)
-* Support for :boolean type
-* Support for protocol :http and :https
 * Right now, block doesn't support adding nested arguments in multiple 
   declarations. So instead of this:
 	assert_request do |r|

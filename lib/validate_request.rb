@@ -4,6 +4,7 @@
 
 require 'request_rules'
 require 'request_method'
+require 'request_protocol'
 require 'required_params'
 require 'optional_params'
 require 'request_error'
@@ -12,12 +13,12 @@ module ValidateRequest
 
   # Call this method at the beginning of your action to verify that the current
   # parameters match your idea of a valid set of values.
-  def assert_request(methods=:get, requirements={}, options={})
+  def assert_request(methods=[], requirements={}, options={}, protocols=[])
     if block_given?
       rules = RequestRules.new
       yield rules
     else
-      rules = RequestRules.new(methods, requirements, options)
+      rules = RequestRules.new(methods, requirements, options, protocols)
     end
     
     # Remove the common parameters that are provided on each call, and don't
@@ -27,6 +28,9 @@ module ValidateRequest
     
     # Validate the request method.
     RequestMethod.new(request.method).validate(rules.methods)
+    
+    # Validate the request protocol.
+    RequestProtocol.new(request.protocol).validate(rules.protocols)
     
     # Verify and eliminate all of the required arguments
     required = RequiredParams.new(original_params)

@@ -203,6 +203,21 @@ class ValidateRequestControllerTest < Test::Unit::TestCase
     assert_invalid_request :get, :optional_dog, :id => '5', :dog => {:name => 'luther', :breed => 'bouvier', :age_in_years => '12', :extra => 'bad'}    
   end
   
+  def test_protocol
+    assert_invalid_request :get, :must_be_ssl    
+    # This is how we simulate SSL being on 
+    @request.env['HTTPS'] = 'on'
+    assert_valid_request :get, :must_be_ssl
+    @request.env['HTTPS'] = 'off'
+  end
+  
+  def test_get_is_ok_by_default
+    assert_valid_request   :get,    :default_method_is_get
+    assert_invalid_request :post,   :default_method_is_get
+    assert_invalid_request :put,    :default_method_is_get
+    assert_invalid_request :delete, :default_method_is_get
+  end
+  
 private
 
   # Works like "get" or "post", only it also asserts that the request was 
