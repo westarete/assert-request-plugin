@@ -40,9 +40,12 @@ class RequestRulesTest < Test::Unit::TestCase
     assert_equal({:id => :integer, :color => :string, :x => :integer, :y => :integer}, r.requirements)
     r.required :name => {:first => :string}
     assert_equal({:id => :integer, :color => :string, :x => :integer, :y => :integer, :name => {:first => :string}}, r.requirements)
-    # TODO: Allow nested requirements to be added additively.
-    #r.required :name => {:first => :string}
-    #assert_equal({:id => :integer, :color => :string, :x => :integer, :y => :integer, :name => {:first => :string, :last => :string}}, r.requirements)
+    r.required :name => {:last => :string}
+    assert_equal({:id => :integer, :color => :string, :x => :integer, :y => :integer, :name => {:first => :string, :last => :string}}, r.requirements)
+    r.required :name => {:last => {:letter => :string, :number => :integer}}
+    assert_equal({:id => :integer, :color => :string, :x => :integer, :y => :integer, :name => {:first => :string, :last => {:letter => :string, :number => :integer}}}, r.requirements)
+    r.required :name => {:last => {:deep => {:letter => :string, :number => :integer}}}
+    assert_equal({:id => :integer, :color => :string, :x => :integer, :y => :integer, :name => {:first => :string, :last => {:letter => :string, :number => :integer, :deep => {:letter => :string, :number => :integer}}}}, r.requirements)
   end
   
   def test_options_via_new
@@ -63,10 +66,12 @@ class RequestRulesTest < Test::Unit::TestCase
     assert_equal({:id => :integer, :color => :string, :x => :integer, :y => :integer}, r.options)
     r.optional :name => {:first => :string}
     assert_equal({:id => :integer, :color => :string, :x => :integer, :y => :integer, :name => {:first => :string}}, r.options)
-    # TODO: Allow nested options to be added additively.
-    #r.optional :name => {:first => :string}
-    #assert_equal({:id => :integer, :color => :string, :x => :integer, :y => :integer, :name => {:first => :string, :last => :string}}, r.options)
+    r.optional :name => {:last => :string}
+    assert_equal({:id => :integer, :color => :string, :x => :integer, :y => :integer, :name => {:first => :string, :last => :string}}, r.options)
+    r.optional :name => {:last => {:letter => :string, :number => :integer}}
+    assert_equal({:id => :integer, :color => :string, :x => :integer, :y => :integer, :name => {:first => :string, :last => {:letter => :string, :number => :integer}}}, r.options)
+    r.optional :name => {:last => {:deep => {:letter => :string, :number => :integer}}}
+    assert_equal({:id => :integer, :color => :string, :x => :integer, :y => :integer, :name => {:first => :string, :last => {:letter => :string, :number => :integer, :deep => {:letter => :string, :number => :integer}}}}, r.options)
   end
-  
   
 end

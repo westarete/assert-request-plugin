@@ -1,5 +1,21 @@
 require 'activerecord_requirements'
 
+class Hash
+  # Merge the given hash with the current hash, doing the same with any nested 
+  # hashes. 
+  def nested_merge!(another_hash)
+    another_hash.each do |key, value|
+      if self.has_key? key and self[key].is_a? Hash and value.is_a? Hash and 
+        # Merge the two values
+        self[key].nested_merge! value
+      else
+        # Regular merge
+        self[key] = value
+      end
+    end
+  end
+end
+
 module ValidateRequest
   # Holds the definition of the rules for a valid request
   class RequestRules
@@ -31,14 +47,15 @@ module ValidateRequest
     # Add one or more parameter definitions (e.g. :id => :integer) to the
     # list of required parameters.
     def required(requirements)
-      @requirements.merge! ActiveRecordRequirements.new(requirements).expand
+      @requirements.nested_merge! ActiveRecordRequirements.new(requirements).expand
     end
 
     # Add one or more parameter definitions (e.g. :author => :string) to the
     # list of optional parameters.
     def optional(options)
-      @options.merge! ActiveRecordRequirements.new(options).expand
-    end    
-        
+      @options.nested_merge! ActiveRecordRequirements.new(options).expand
+    end
+    
   end
 end
+
