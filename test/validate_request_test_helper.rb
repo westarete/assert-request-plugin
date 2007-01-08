@@ -281,4 +281,28 @@ class ValidateRequestController < ActionController::Base
     render :nothing => true
   end
 
+  def collection_required
+    assert_request(:get, :person => {[] => {:name => :string}})
+    render :nothing => true
+  end
+
+  def collection_required_with_block
+    assert_request do |r|
+      r.required :person => {[] => {:name => :string}}
+    end
+    render :nothing => true
+  end
+
+  def collection_optional
+    assert_request(:get, {}, {:person => {[] => {:name => :string}}})
+    render :nothing => true
+  end
+
+  def collection_optional_with_block
+    assert_request do |r|
+      r.optional :person => {[] => {:name => :string}}
+    end
+    render :nothing => true
+  end
+
 end

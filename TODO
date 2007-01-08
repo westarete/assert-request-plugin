@@ -1,5 +1,3 @@
-* Support for forms that use arrays of objects, e.g. "name[]" param, which 
-  would be specified as:  r.require :name => {[] => Name}
 * Forms using :method => :put still seem to show up as request.method == :post.
 * Allow override of default set of params to ignore.
 * Support for RESTful aspects (the stuff after the semicolon)?

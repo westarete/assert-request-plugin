@@ -231,6 +231,32 @@ class ValidateRequestControllerTest < Test::Unit::TestCase
     assert_valid_request :get, :one_integer, :id => '3', :method => "delete"
   end
   
+  def test_collection_required
+    assert_valid_request   :get, :collection_required, :person => {"5" => {:name => "Bob"}}    
+    assert_valid_request   :get, :collection_required, :person => {"5" => {:name => "Bob"}, "62" => {:name => "Alice"}}    
+    assert_valid_request   :get, :collection_required, :person => {"5" => {:name => "Bob"}, "62" => {:name => "Alice"}, "123" => {:name => "Janice"}}    
+    assert_invalid_request :get, :collection_required
+    assert_invalid_request :get, :collection_required, :person => {:name => "Bob"}
+    assert_invalid_request :get, :collection_required, :person => {"a" => {:name => "Bob"}}
+    assert_invalid_request :get, :collection_required, :person => {"1" => {:age => "Bob"}}
+    assert_invalid_request :get, :collection_required, :person => {"5" => {:name => "Bob"}, :name => "Bob"}
+    assert_invalid_request :get, :collection_required, :person => {"5" => {:name => "Bob"}, "a" => {:name => "Bob"}}
+    assert_invalid_request :get, :collection_required, :person => {"5" => {:name => "Bob"}, "1" => {:age => "Bob"}}
+  end
+  
+  def test_collection_optional
+    assert_valid_request   :get, :collection_optional
+    assert_valid_request   :get, :collection_optional, :person => {"5" => {:name => "Bob"}}    
+    assert_valid_request   :get, :collection_optional, :person => {"5" => {:name => "Bob"}, "62" => {:name => "Alice"}}    
+    assert_valid_request   :get, :collection_optional, :person => {"5" => {:name => "Bob"}, "62" => {:name => "Alice"}, "123" => {:name => "Janice"}}    
+    assert_invalid_request :get, :collection_optional, :person => {:name => "Bob"}
+    assert_invalid_request :get, :collection_optional, :person => {"a" => {:name => "Bob"}}
+    assert_invalid_request :get, :collection_optional, :person => {"1" => {:age => "Bob"}}
+    assert_invalid_request :get, :collection_optional, :person => {"5" => {:name => "Bob"}, :name => "Bob"}
+    assert_invalid_request :get, :collection_optional, :person => {"5" => {:name => "Bob"}, "a" => {:name => "Bob"}}
+    assert_invalid_request :get, :collection_optional, :person => {"5" => {:name => "Bob"}, "1" => {:age => "Bob"}}
+  end
+  
 private
 
   # Works like "get" or "post", only it also asserts that the request was 
