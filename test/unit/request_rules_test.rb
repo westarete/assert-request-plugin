@@ -1,5 +1,5 @@
-require 'test/unit'
-require File.dirname(__FILE__) + '/../lib/request_rules'
+require File.dirname(__FILE__) + '/../lib/test_helper'
+require 'request_rules'
 
 class RequestRulesTest < Test::Unit::TestCase
 

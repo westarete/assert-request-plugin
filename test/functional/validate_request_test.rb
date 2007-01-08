@@ -2,7 +2,7 @@
 #
 # (c) Copyright 2006 by West Arete Computing, Inc.
 
-require File.dirname(__FILE__) + '/test_helper' 
+require File.dirname(__FILE__) + '/../lib/test_helper'
 require 'validate_request'
 require File.dirname(__FILE__) + '/validate_request_test_helper'
 

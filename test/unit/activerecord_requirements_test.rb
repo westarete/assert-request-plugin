@@ -1,6 +1,5 @@
-require 'test/unit'
-require File.dirname(__FILE__) + '/test_helper.rb'
-require File.dirname(__FILE__) + '/../lib/activerecord_requirements'
+require File.dirname(__FILE__) + '/../lib/test_helper'
+require 'activerecord_requirements'
 
 # Simple model to use while testing ActiveRecord requirement types.
 class Dog < ActiveRecord::Base ; end
