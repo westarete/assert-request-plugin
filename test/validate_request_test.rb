@@ -225,6 +225,12 @@ class ValidateRequestControllerTest < Test::Unit::TestCase
     assert_invalid_request :get, :enumerated, :color => "true", :admin => "blue"
   end
   
+  def test_method_encoded_in_params_should_be_ignored
+    assert_valid_request :get, :one_integer, :id => '3'
+    assert_valid_request :get, :one_integer, :id => '3', :method => "put"
+    assert_valid_request :get, :one_integer, :id => '3', :method => "delete"
+  end
+  
 private
 
   # Works like "get" or "post", only it also asserts that the request was 

@@ -1,8 +1,9 @@
-* Support for regular expressions, e.g. :email => /\w+@\w+/ . 
-  These two previous items aren't useful for user input (use validation 
-  instead), but might be handy for when accepting action-to-action arguments
-  (e.g. hidden form fields) that shouldn't be messed with.
-* Support for RESTful aspects (the stuff after the semicolon)?
-* Support for forms that use arrays of objects, e.g. "name[]"?
+* Support for forms that use arrays of objects, e.g. "name[]" param, which 
+  would be specified as:  r.require :name => {[] => Name}
+* Forms using :method => :put still seem to show up as request.method == :post.
 * Allow override of default set of params to ignore.
-* Support for "fake" PUT, DELETE, and HEAD in forms and links using _method?
+* Support for RESTful aspects (the stuff after the semicolon)?
+* Support for regular expressions, e.g. :email => /\w+@\w+/ . Not useful for 
+  user input (use validation instead), but might be handy for when accepting 
+  action-to-action arguments (e.g. hidden form fields) that shouldn't be 
+  messed with.
