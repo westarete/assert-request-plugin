@@ -139,14 +139,6 @@ class ValidateRequestController < ActionController::Base
     end
     render :nothing => true
   end
-
-  # Coming Soon!
-  # def enumerated_type
-  #   assert_request(:get, 
-  #                   {:id => :integer},
-  #                   {:orientation => ['horizontal', 'vertical']})
-  #   render :nothing => true    
-  # end
   
   def simple_nested
     assert_request(:get, :id => :integer, :page => {:count => :integer})
