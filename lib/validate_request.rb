@@ -5,6 +5,7 @@
 require 'request_rules'
 require 'request_method'
 require 'request_protocol'
+require 'params'
 require 'required_params'
 require 'optional_params'
 require 'request_error'
@@ -24,7 +25,7 @@ module ValidateRequest
     # Remove the common parameters that are provided on each call, and don't
     # need to be declared to validate_request.
     original_params = params.dup
-    AbstractParams.ignore_params.each {|key| original_params.delete(key)}
+    Params.ignore_params.each {|key| original_params.delete(key)}
     
     # Validate the request method.
     RequestMethod.new(request.method).validate(rules.methods)

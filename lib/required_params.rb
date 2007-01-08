@@ -1,9 +1,9 @@
-require 'abstract_params'
+require 'params'
 
 module ValidateRequest
-  # A child of AbstractParams that always requires that the parameters match
+  # A child of Params that always requires that the parameters match
   # the requirements exactly.
-  class RequiredParams < AbstractParams
+  class RequiredParams < Params
     protected
     # We always raise an exception if we find a missing parameter.
     def skip_missing_parameter?(key)

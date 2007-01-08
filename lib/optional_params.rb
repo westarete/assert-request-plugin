@@ -1,9 +1,9 @@
-require 'abstract_params'
+require 'params'
 
 module ValidateRequest
-  # A child of AbstractParams that doesn't mind of some of the permitted 
+  # A child of Params that doesn't mind of some of the permitted 
   # parameters are missing from the actual parameters.
-  class OptionalParams < AbstractParams
+  class OptionalParams < Params
     protected
     # We always skip a missing parameter.
     def skip_missing_parameter?(key)
