@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/../lib/test_helper'
+require File.dirname(__FILE__) + '/../test_helper'
 require 'request_rules'
 
 class RequestRulesTest < Test::Unit::TestCase
