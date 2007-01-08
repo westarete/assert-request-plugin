@@ -7,6 +7,22 @@ module ValidateRequest
   class AbstractParams
     attr_reader :params
     
+    # The set of params that we should ignore by default. You could modify 
+    # this in your environment.rb if its default settings don't suit your 
+    # appliction. 
+    @@ignore_params = %w( action controller commit method )
+    
+    # I had to define the cattr_accessor methods myself, since I kept getting
+    # an error that cattr_accessor was not defined. Couldn't solve it the 
+    # right way.
+    def self.ignore_params
+      @@ignore_params
+    end
+    
+    def self.ignore_params=(new_value)
+      @@ignore_params = new_value
+    end
+
     def initialize(params)
       @params = params.dup
     end

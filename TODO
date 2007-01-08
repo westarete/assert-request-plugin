@@ -1,7 +1,12 @@
-* Forms using :method => :put still seem to show up as request.method == :post.
-* Allow override of default set of params to ignore.
-* Support for RESTful aspects (the stuff after the semicolon)?
-* Support for regular expressions, e.g. :email => /\w+@\w+/ . Not useful for 
-  user input (use validation instead), but might be handy for when accepting 
-  action-to-action arguments (e.g. hidden form fields) that shouldn't be 
-  messed with.
+* I think that forms using alternate methods such as :method => :put still
+  show up as request.method == :post.
+
+* (Maybe) Support for regular expressions, e.g. :email => /\w+@\w+/ . Not
+  useful for user input (use validation instead), but might be handy for when
+  accepting action-to-action arguments (e.g. hidden form fields) that
+  shouldn't be messed with.
+
+* Verify that RESTful aspects (the stuff after the semicolon) are supported
+  properly. This should be handled at the routing level though, so it should
+  be OK -- the stuff after the semicolon should simply get interpreted as the
+  action.

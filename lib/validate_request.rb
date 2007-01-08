@@ -24,7 +24,7 @@ module ValidateRequest
     # Remove the common parameters that are provided on each call, and don't
     # need to be declared to validate_request.
     original_params = params.dup
-    [:action, :controller, :commit, :method].each {|key| original_params.delete(key)}
+    AbstractParams.ignore_params.each {|key| original_params.delete(key)}
     
     # Validate the request method.
     RequestMethod.new(request.method).validate(rules.methods)
