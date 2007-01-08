@@ -2,7 +2,7 @@ require 'request_error'
 
 module ValidateRequest
   # Defines how we handle and validate the request method.
-  class RequestMethod
+  class RequestMethod #:nodoc:
     
     def initialize(method)
       @method = method

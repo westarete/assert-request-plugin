@@ -1,6 +1,6 @@
 require 'activerecord_requirements'
 
-class Hash
+class Hash #:nodoc:
   # Merge the given hash with the current hash, doing the same with any nested 
   # hashes. 
   def nested_merge!(another_hash)
@@ -18,7 +18,7 @@ end
 
 module ValidateRequest
   # Holds the definition of the rules for a valid request
-  class RequestRules
+  class RequestRules #:nodoc:
     attr_reader :methods, :requirements, :options, :protocols
 
     def initialize(methods=[], requirements={}, options={}, protocols=[])

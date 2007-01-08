@@ -4,7 +4,7 @@ require 'request_error'
 module ValidateRequest
   # An abstract class that describes how we generally treat sets of parameters
   # and their requirements.
-  class Params
+  class Params #:nodoc:
     attr_reader :params
     
     # The set of params that we should ignore by default. You could modify 

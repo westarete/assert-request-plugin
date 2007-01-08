@@ -2,7 +2,7 @@ require 'request_error'
 
 module ValidateRequest
   # Defines how we handle and validate the request protocol.
-  class RequestProtocol
+  class RequestProtocol #:nodoc:
     
     def initialize(protocol)
       # Strip the trailing :// off the protocol.

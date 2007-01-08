@@ -2,7 +2,7 @@ require 'request_error'
 
 module ValidateRequest
   # Represents one key/value parameter pair
-  class ParameterPair
+  class ParameterPair #:nodoc:
     attr_accessor :key, :value
   
     def initialize(key, value)

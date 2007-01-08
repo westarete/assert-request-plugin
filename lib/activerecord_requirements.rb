@@ -1,6 +1,6 @@
 module ValidateRequest
   # Represents a requirement whose type is an ActiveRecord class.
-  class ActiveRecordRequirements
+  class ActiveRecordRequirements #:nodoc:
     
     # The set of columns in the ActiveRecord model that we should ignore by
     # default. You could modify this in your environment.rb if its default 
