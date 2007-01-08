@@ -257,6 +257,24 @@ class ValidateRequestControllerTest < Test::Unit::TestCase
     assert_invalid_request :get, :collection_optional, :person => {"5" => {:name => "Bob"}, "1" => {:age => "Bob"}}
   end
   
+  def test_collection_of_required_models
+    assert_valid_request   :get, :collection_of_required_models, :dog => {"5" => {:name => 'luther', :breed => 'bouvier', :age_in_years => '12'}}
+    assert_valid_request   :get, :collection_of_required_models, :dog => {"5" => {:name => 'luther', :breed => 'bouvier', :age_in_years => '12'}, "6" => {:name => 'nittany', :breed => 'shih tzu', :age_in_years => '8'}}
+    assert_invalid_request :get, :collection_of_required_models
+    assert_invalid_request :get, :collection_of_required_models, :dog => {"5" => {:breed => 'bouvier', :age_in_years => '12'}, "6" => {:name => 'nittany', :breed => 'shih tzu', :age_in_years => '8'}}
+    assert_invalid_request :get, :collection_of_required_models, :dog => {"a" => {:breed => 'bouvier', :age_in_years => '12'}, "6" => {:name => 'nittany', :breed => 'shih tzu', :age_in_years => '8'}}
+    assert_invalid_request :get, :collection_of_required_models, :dog => {"5" => {:name => 'luther', :breed => 'bouvier', :age_in_years => '12'}, "6" => {:name => 'nittany', :breed => 'shih tzu', :age_in_years => '8', :extra => "bad"}}
+  end
+
+  def test_collection_of_optional_models
+    assert_valid_request   :get, :collection_of_optional_models
+    assert_valid_request   :get, :collection_of_optional_models, :dog => {"5" => {:breed => 'bouvier', :age_in_years => '12'}, "6" => {:name => 'nittany', :breed => 'shih tzu', :age_in_years => '8'}}
+    assert_valid_request   :get, :collection_of_optional_models, :dog => {"5" => {:name => 'luther', :breed => 'bouvier', :age_in_years => '12'}}
+    assert_valid_request   :get, :collection_of_optional_models, :dog => {"5" => {:name => 'luther', :breed => 'bouvier', :age_in_years => '12'}, "6" => {:name => 'nittany', :breed => 'shih tzu', :age_in_years => '8'}}
+    assert_invalid_request :get, :collection_of_optional_models, :dog => {"a" => {:breed => 'bouvier', :age_in_years => '12'}, "6" => {:name => 'nittany', :breed => 'shih tzu', :age_in_years => '8'}}
+    assert_invalid_request :get, :collection_of_optional_models, :dog => {"5" => {:name => 'luther', :breed => 'bouvier', :age_in_years => '12'}, "6" => {:name => 'nittany', :breed => 'shih tzu', :age_in_years => '8', :extra => "bad"}}
+  end
+  
 private
 
   # Works like "get" or "post", only it also asserts that the request was 

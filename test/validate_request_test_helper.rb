@@ -304,5 +304,29 @@ class ValidateRequestController < ActionController::Base
     end
     render :nothing => true
   end
+  
+  def collection_of_required_models
+    assert_request(:get, :dog => {[] => Dog})
+    render :nothing => true
+  end
+    
+  def collection_of_required_models_with_block
+    assert_request do |r|
+      r.required :dog => {[] => Dog}
+    end
+    render :nothing => true
+  end
+
+  def collection_of_optional_models
+    assert_request(:get, {}, {:dog => {[] => Dog}})
+    render :nothing => true
+  end
+    
+  def collection_of_optional_models_with_block
+    assert_request do |r|
+      r.optional :dog => {[] => Dog}
+    end
+    render :nothing => true
+  end
 
 end
