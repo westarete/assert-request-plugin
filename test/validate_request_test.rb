@@ -207,6 +207,7 @@ class ValidateRequestControllerTest < Test::Unit::TestCase
     assert_invalid_request :get, :must_be_ssl    
     # This is how we simulate SSL being on 
     @request.env['HTTPS'] = 'on'
+    assert @request.ssl?
     assert_valid_request :get, :must_be_ssl
     @request.env['HTTPS'] = 'off'
   end
