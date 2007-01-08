@@ -1,3 +1,5 @@
+* Improve rdoc documentation for public use.
+
 * I think that forms using alternate methods such as :method => :put still
   show up as request.method == :post.
 
