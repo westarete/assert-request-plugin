@@ -267,5 +267,18 @@ class ValidateRequestController < ActionController::Base
     end
     render :nothing => true
   end
+  
+  def enumerated
+    assert_request(:get, {:color => ["red", "blue", "green"]}, {:admin => ["true", "false"]})
+    render :nothing => true
+  end
+  
+  def enumerated_with_block
+    assert_request do |r|
+      r.required :color => ["red", "blue", "green"]
+      r.optional :admin => ["true", "false"]
+    end
+    render :nothing => true
+  end
 
 end

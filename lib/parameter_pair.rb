@@ -17,6 +17,10 @@ module ValidateRequest
         unless @value.to_s =~ /^\d+$/
           raise RequestError, "bad value for #{@key}: #{@value} is not an integer"
         end
+      elsif requirement.respond_to? :detect
+        unless requirement.detect { |r| r == @value }
+          raise RequestError, "bad value for #{@key}: #{@value} != '#{requirement.inspect}'"
+        end
       else
         unless @value == requirement
           raise RequestError, "bad value for #{@key}: #{@value} != '#{requirement}'"

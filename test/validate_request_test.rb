@@ -54,14 +54,6 @@ class ValidateRequestControllerTest < Test::Unit::TestCase
     assert_invalid_request :get, :one_integer_one_specific, {:id => '4a', :orientation => 'vertical'}
   end
 
-  # Coming Soon!  
-  # def test_enumerated_type
-  #   assert_valid_request :get, :enumerated_type, {:id => '4', :orientation => 'horizontal'}
-  #   assert_valid_request :get, :enumerated_type, {:id => '4', :orientation => 'vertical'}
-  #   assert_valid_request :get, :enumerated_type, {:id => '4'}
-  #   assert_invalid_request :get, :enumerated_type, {:id => '4', :orientation => 'diagonal'}
-  # end
-  
   def test_request_methods
     assert_valid_request :get, :get_only
     assert_invalid_request :post, :get_only
@@ -217,6 +209,20 @@ class ValidateRequestControllerTest < Test::Unit::TestCase
     assert_invalid_request :post,   :default_method_is_get
     assert_invalid_request :put,    :default_method_is_get
     assert_invalid_request :delete, :default_method_is_get
+  end
+  
+  def test_enumerated
+    assert_valid_request   :get, :enumerated, :color => "blue"
+    assert_valid_request   :get, :enumerated, :color => "red"
+    assert_valid_request   :get, :enumerated, :color => "green"
+    assert_valid_request   :get, :enumerated, :color => "red",   :admin => "true"
+    assert_valid_request   :get, :enumerated, :color => "green", :admin => "false"
+    assert_invalid_request :get, :enumerated
+    assert_invalid_request :get, :enumerated, :color => "bad"
+    assert_invalid_request :get, :enumerated, :color => "blue", :admin => "bad"
+    assert_invalid_request :get, :enumerated, :admin => "true"
+    assert_invalid_request :get, :enumerated, :color => "blue", :admin => "true", :extra => "3"
+    assert_invalid_request :get, :enumerated, :color => "true", :admin => "blue"
   end
   
 private

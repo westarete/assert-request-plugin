@@ -1,6 +1,8 @@
-* Support for "enumerated types", e.g. :colors => ['red', 'blue', 'green']
 * Support for regular expressions, e.g. :email => /\w+@\w+/ . 
   These two previous items aren't useful for user input (use validation 
   instead), but might be handy for when accepting action-to-action arguments
   (e.g. hidden form fields) that shouldn't be messed with.
-* Support for RESTful aspects (the stuff after the semicolon)
+* Support for RESTful aspects (the stuff after the semicolon)?
+* Support for forms that use arrays of objects, e.g. "name[]"?
+* Allow override of default set of params to ignore.
+* Support for "fake" PUT, DELETE, and HEAD in forms and links using _method?
