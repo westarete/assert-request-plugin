@@ -47,13 +47,13 @@ module ValidateRequest
     # Add one or more parameter definitions (e.g. :id => :integer) to the
     # list of required parameters.
     def required(requirements)
-      @requirements.nested_merge! ActiveRecordRequirements.new(requirements).expand
+      @requirements.nested_merge! ActiveRecordRules.new(requirements).expand
     end
 
     # Add one or more parameter definitions (e.g. :author => :string) to the
     # list of optional parameters.
     def optional(options)
-      @options.nested_merge! ActiveRecordRequirements.new(options).expand
+      @options.nested_merge! ActiveRecordRules.new(options).expand
     end
     
   end

@@ -4,7 +4,7 @@ require 'request_error'
 module ValidateRequest
   # An abstract class that describes how we generally treat sets of parameters
   # and their requirements.
-  class Params #:nodoc:
+  class ParamRules #:nodoc:
     attr_reader :params
     
     # The set of params that we should ignore by default. You could modify 
@@ -56,7 +56,7 @@ module ValidateRequest
           
           # Look for this requirement in the given parameters. Let the child
           # class (optional vs. required) tell us what to do if it's missing.
-          # Params hash uses strings (not symbols) for keys, so we convert.
+          # ParamRules hash uses strings (not symbols) for keys, so we convert.
           value = parameters[key.to_s]
           if value.nil?
             next if skip_missing_parameter?(key)
@@ -71,7 +71,7 @@ module ValidateRequest
             parameters.delete(key) if value.empty?
           else
             # Validate a normal key/value pair.
-            ParameterPair.new(key, value).validate(requirement)
+            ParamPairRules.new(key, value).validate(requirement)
             parameters.delete(key)
           end
         end

@@ -25,20 +25,20 @@ module ValidateRequest
     # Remove the common parameters that are provided on each call, and don't
     # need to be declared to validate_request.
     original_params = params.dup
-    Params.ignore_params.each {|key| original_params.delete(key)}
+    ParamRules.ignore_params.each {|key| original_params.delete(key)}
     
     # Validate the request method.
-    RequestMethod.new(request.method).validate(rules.methods)
+    MethodRules.new(request.method).validate(rules.methods)
     
     # Validate the request protocol.
-    RequestProtocol.new(request.protocol).validate(rules.protocols)
+    ProtocolRules.new(request.protocol).validate(rules.protocols)
     
     # Verify and eliminate all of the required arguments
-    required = RequiredParams.new(original_params)
+    required = RequiredParamRules.new(original_params)
     required.validate_and_delete!(rules.requirements)
     
     # Continue to verify and eliminate all of the optional arguments
-    optional = OptionalParams.new(required.params)
+    optional = OptionalParamRules.new(required.params)
     optional.validate_and_delete!(rules.options)
     
     # There shouldn't be anything left
