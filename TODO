@@ -1,4 +1,13 @@
-* Improve rdoc documentation for public use.
+* Improve rdoc documentation for public use. README should cover
+  justification, installation, and how to handle the resulting exceptions.
+  The assert_request method should be documented with the actual usage and
+  examples.
+
+* Consider switching to same license as rails -- MIT.
+
+* Make new release.
+
+* Blog, post, comment, and email about it. Seek suggestions for improvement.
 
 * I think that forms using alternate methods in forms (such as :method =>
   :put) still show up as request.method == :post.

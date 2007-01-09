@@ -2,8 +2,11 @@ require 'param_pair_rules'
 require 'request_error'
 
 module ValidateRequest
+  
   # An abstract class that describes how we generally treat sets of parameters
-  # and their requirements.
+  # and their requirements. Child classes must implement the 
+  # skip_missing_parameter? method, which determines how we behave in the face 
+  # of a missing parameter compared to our requirements.
   class ParamRules #:nodoc:
     attr_reader :params
     
@@ -77,14 +80,6 @@ module ValidateRequest
         end
       end
     end
-    
-    protected
-
-    # Child classes must implement this method, which determines how we 
-    # behave in the face of a missing parameter compared to our requirements.
-    def skip_missing_parameter?(key)
-      raise "not implemented"
-    end    
-        
+            
   end
 end

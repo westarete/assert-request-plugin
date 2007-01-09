@@ -27,7 +27,6 @@ namespace :test do
 
 end
 
-
 desc 'Generate documentation for the validate_request plugin.'
 Rake::RDocTask.new(:rdoc) do |rdoc|
   rdoc.rdoc_dir = 'rdoc'
