@@ -35,7 +35,7 @@ module ValidateRequest
     # params.
     def validate(parameters)
       returning parameters.dup do |params|
-        validate_and_delete!(params, @requirements)
+        validate_and_delete!(@requirements, params)
       end
     end
     
@@ -44,11 +44,9 @@ module ValidateRequest
     # Validate the given parameters against the given requirements, raising 
     # exceptions for bad parameters, and deleting valid parameters from the
     # given params hash.
-    # TODO: We can factor out some repetition in this method.
-    def validate_and_delete!(params, requirements)  
+    def validate_and_delete!(requirements, params)  
       requirements.each do |key, requirement|
-
-        # Check for an index specification, e.g. :person => {[] => {:name => :string}
+        # Check for an index specification, e.g. 'person' => {[] => {'name' => :string}
         if key.kind_of? Array
           unless key.empty?
             raise "Can't understand request specification: non-empty array for hash key: #{key.inspect}"
@@ -63,7 +61,7 @@ module ValidateRequest
           # Validate each ID's value, which must be a hash.
           index_params.each do |pkey, value|
             # Recursively verify nested hashes.
-            validate_and_delete_hash!(pkey, value, requirement)
+            validate_and_delete_hash!(pkey, requirement, value)
             params.delete(pkey) if value.empty?
           end
         else
@@ -77,7 +75,7 @@ module ValidateRequest
         
           if requirement.kind_of? Hash
             # Recursively verify nested hashes.
-            validate_and_delete_hash!(key, value, requirement)
+            validate_and_delete_hash!(key, requirement, value)
             params.delete(key) if value.empty?
           else
             # Validate a normal key/value pair.
@@ -91,11 +89,11 @@ module ValidateRequest
     # Validate the given key/value pair against the given hash requirement.
     # Raises exceptions for bad parameters, and deletes valid parameters from 
     # the given params value, which should also be a hash.
-    def validate_and_delete_hash!(key, value, requirement)
-      unless value.kind_of? Hash        
+    def validate_and_delete_hash!(key, requirement, params)
+      unless params.kind_of? Hash        
         raise RequestError, "parameter '#{key}' is not a compound value"
       end
-      validate_and_delete!(value, requirement)
+      validate_and_delete!(requirement, params)
     end
 
   end
