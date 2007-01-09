@@ -3,6 +3,9 @@
   The assert_request method should be documented with the actual usage and
   examples.
 
+* Write additional unit tests for untested code revealed by 
+  "rake test:coverage".
+
 * Consider switching to same license as rails -- MIT.
 
 * Make new release.
