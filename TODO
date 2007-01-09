@@ -3,8 +3,18 @@
   The assert_request method should be documented with the actual usage and
   examples.
 
+* Switch params variable specifications from symbols to strings, since this is
+  how params are expressed anyway. We artificially limit ourselves by using
+  :name => :string instead of "name" => "string". For example, someone may
+  really want an HTML form parameter called "first-name", and the dash
+  wouldn't be allowed as a symbol.
+
 * Write additional unit tests for untested code revealed by 
   "rake test:coverage".
+
+* The "Rules" classes have things backwards -- they should initialize with
+  the requirements, and then validate the params. Right now they're doing it
+  the other way around.
 
 * Consider switching to same license as rails -- MIT.
 

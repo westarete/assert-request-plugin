@@ -34,15 +34,10 @@ module ValidateRequest
     ProtocolRules.new(request.protocol).validate(rules.protocols)
     
     # Verify and eliminate all of the required arguments
-    required = RequiredParamRules.new(original_params)
-    required.validate_and_delete!(rules.requirements)
+    non_required = RequiredParamRules.new(rules.requirements).validate(original_params)
     
     # Continue to verify and eliminate all of the optional arguments
-    optional = OptionalParamRules.new(required.params)
-    optional.validate_and_delete!(rules.options)
-    
-    # There shouldn't be anything left
-    unexpected = optional.params
+    unexpected = OptionalParamRules.new(rules.options).validate(non_required)
     unless unexpected.empty?
       raise RequestError, "unexpected parameters: #{unexpected.inspect}"
     end
