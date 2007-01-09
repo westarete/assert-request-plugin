@@ -1,11 +1,11 @@
-require 'activerecord_requirements'
+require 'activerecord_rules'
 
 class Hash #:nodoc:
   # Merge the given hash with the current hash, doing the same with any nested 
   # hashes. 
   def nested_merge!(another_hash)
     another_hash.each do |key, value|
-      if self.has_key? key and self[key].is_a? Hash and value.is_a? Hash and 
+      if self.has_key? key and self[key].is_a? Hash and value.is_a? Hash 
         # Merge the two values
         self[key].nested_merge! value
       else

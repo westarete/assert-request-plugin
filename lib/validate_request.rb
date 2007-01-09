@@ -3,11 +3,11 @@
 # (c) Copyright 2006 by West Arete Computing, Inc.
 
 require 'request_rules'
-require 'request_method'
-require 'request_protocol'
-require 'params'
-require 'required_params'
-require 'optional_params'
+require 'method_rules'
+require 'protocol_rules'
+require 'param_rules'
+require 'required_param_rules'
+require 'optional_param_rules'
 require 'request_error'
 
 module ValidateRequest

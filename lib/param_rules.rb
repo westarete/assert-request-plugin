@@ -1,4 +1,4 @@
-require 'parameter_pair'
+require 'param_pair_rules'
 require 'request_error'
 
 module ValidateRequest

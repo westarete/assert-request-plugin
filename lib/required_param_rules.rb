@@ -1,4 +1,4 @@
-require 'params'
+require 'param_rules'
 
 module ValidateRequest
   # A child of ParamRules that always requires that the parameters match

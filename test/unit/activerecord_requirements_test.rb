@@ -1,5 +1,5 @@
 require File.dirname(__FILE__) + '/../test_helper'
-require 'activerecord_requirements'
+require 'activerecord_rules'
 
 # Simple model to use while testing ActiveRecord requirement types.
 class Dog < ActiveRecord::Base ; end

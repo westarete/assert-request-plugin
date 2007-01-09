@@ -4,7 +4,7 @@
 
 +validate_request+ accepts three arguments, all of which are optional:
 
-* +valid_request_methods+ - One or more (in an array) symbols representing the
+* +valid_method_ruless+ - One or more (in an array) symbols representing the
   HTTP request methods that this action supports. The default is :get.
 * +param_requirements+ - A hash that describes the arguments that are required
   for this action.
