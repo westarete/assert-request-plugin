@@ -33,9 +33,9 @@ module ValidateRequest
     # Validate the given parameters against our requirements, raising 
     # exceptions for bad parameters, and returning a hash of any unrecognized
     # params.
-    def validate(parameters)
-      returning parameters.dup do |params|
-        validate_and_delete!(@requirements, params)
+    def validate(params)
+      returning params.dup do |copy_of_params|
+        validate_and_delete!(@requirements, copy_of_params)
       end
     end
     
@@ -43,57 +43,71 @@ module ValidateRequest
     
     # Validate the given parameters against the given requirements, raising 
     # exceptions for bad parameters, and deleting valid parameters from the
-    # given params hash.
+    # given parameters hash.
     def validate_and_delete!(requirements, params)  
-      requirements.each do |key, requirement|
-        # Check for an index specification, e.g. 'person' => {[] => {'name' => :string}
-        if key.kind_of? Array
-          unless key.empty?
-            raise "Can't understand request specification: non-empty array for hash key: #{key.inspect}"
-          end
-          
-          # Look for IDs in the params hash.
-          index_params = params.select { |k,v| k =~ /^\d+$/ }
-          if index_params.empty?
-            next if skip_missing_parameter?(key)
-          end
-        
-          # Validate each ID's value, which must be a hash.
-          index_params.each do |pkey, value|
-            # Recursively verify nested hashes.
-            validate_and_delete_hash!(pkey, requirement, value)
-            params.delete(pkey) if value.empty?
-          end
+      requirements.each do |requirement_key, requirement_value|
+        if requirement_key.kind_of? Array
+          validate_and_delete_collection!(requirement_key, requirement_value, params)
         else
-          # Look for this requirement in the given params. Let the child
-          # class (optional vs. required) tell us what to do if it's missing.
-          # The params hash uses strings, not symbols for keys, so we convert.
-          value = params[key.to_s]
-          if value.nil?
-            next if skip_missing_parameter?(key)
-          end
-        
-          if requirement.kind_of? Hash
-            # Recursively verify nested hashes.
-            validate_and_delete_hash!(key, requirement, value)
-            params.delete(key) if value.empty?
-          else
-            # Validate a normal key/value pair.
-            ParamPairRules.new(key, value).validate(requirement)
-            params.delete(key)
-          end
+          validate_and_delete_variable!(requirement_key, requirement_value, params)
         end
       end
     end
     
-    # Validate the given key/value pair against the given hash requirement.
+    # Validate a collection, for example one that was specified like:
+    #   [] => {'name' => :string}
+    # The requirement_key is (should be) the empty array. The
+    # requirement_value is the hash of requirements ({'name' => :string in 
+    # this case). And the params hash is what to validate. Raises exceptions 
+    # for bad parameters, and deletes valid parameters from the params hash.
+    def validate_and_delete_collection!(requirement_key, requirement_value, params)
+      unless requirement_key.empty?
+        raise "Can't understand request specification: non-empty array for hash requirement_key: #{requirement_key.inspect}"
+      end
+      
+      # Look for IDs in the params hash.
+      index_params = params.select { |k,v| k =~ /^\d+$/ }
+      
+      # We're supposed to be a collection. If there are no indexes in the 
+      # params hash, then we count this variable as "missing".
+      return if index_params.empty? and skip_missing_parameter?(requirement_key)
+    
+      # Recursively validate each ID's value, which must be a hash.
+      index_params.each do |params_key, params_value|
+        validate_and_delete_hash!(params_key, requirement_value, params_value)
+        params.delete(params_key) if params_value.empty?
+      end
+    end
+    
+    # Validate a variable requirement for the given params. Raises exceptions 
+    # for bad parameters, and deletes valid parameters from the params hash.
+    def validate_and_delete_variable!(requirement_key, requirement_value, params)
+      # Look for this requirement_value in the given params. We convert 
+      # symbols to strings for the user's convenience (params are always 
+      # strings).
+      params_value = params[requirement_key.to_s]
+      return if params_value.nil? and skip_missing_parameter?(requirement_key)
+    
+      if requirement_value.kind_of? Hash
+        # Recursively verify nested hashes.
+        validate_and_delete_hash!(requirement_key, requirement_value, params_value)
+        params.delete(requirement_key) if params_value.empty?
+      else
+        # Validate a normal requirement_key/value pair.
+        ParamPairRules.new(requirement_key, params_value).validate(requirement_value)
+        params.delete(requirement_key)
+      end    
+    end
+    
+    # Validate the given params value against the given requirement_value,
+    # presuming that requirement_value is a hash.
     # Raises exceptions for bad parameters, and deletes valid parameters from 
     # the given params value, which should also be a hash.
-    def validate_and_delete_hash!(key, requirement, params)
+    def validate_and_delete_hash!(requirement_key, requirement_value, params)
       unless params.kind_of? Hash        
-        raise RequestError, "parameter '#{key}' is not a compound value"
+        raise RequestError, "parameter '#{requirement_key}' is not a compound value"
       end
-      validate_and_delete!(requirement, params)
+      validate_and_delete!(requirement_value, params)
     end
 
   end
