@@ -5,7 +5,7 @@ module ValidateRequest
   class MethodRules #:nodoc:
     attr_reader :requirements
     
-    def initialize(requirements)
+    def initialize(requirements=[])
       @requirements = []
       @requirements << requirements
       @requirements.flatten!
@@ -17,7 +17,7 @@ module ValidateRequest
     # Check the request method against the given set of permissible methods.
     def validate(method)
       unless @requirements.include? method
-        raise RequestError, "request method #{@method} is not permitted"
+        raise RequestError, "request method #{method} is not permitted"
       end      
     end
   end 
