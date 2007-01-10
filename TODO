@@ -3,15 +3,6 @@
   The assert_request method should be documented with the actual usage and
   examples.
 
-* Switch params variable specifications from symbols to strings, since this is
-  how params are expressed anyway. We artificially limit ourselves by using
-  :name => :string instead of "name" => "string". For example, someone may
-  really want an HTML form parameter called "first-name", and the dash
-  wouldn't be allowed as a symbol. This just needs to be done in the tests
-  and documentation -- doesn't require any code changes.
-
-* Consider switching to same license as rails -- MIT.
-
 * Make new release.
 
 * Blog, post, comment, and email about it. Seek suggestions for improvement.
