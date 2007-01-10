@@ -23,7 +23,7 @@ module ValidateRequest
     end
     
     # Validate the request method.
-    MethodRules.new(request.method).validate(rules.methods)
+    MethodRules.new(rules.methods).validate(request.method)
     
     # Validate the request protocol.
     ProtocolRules.new(request.protocol).validate(rules.protocols)
