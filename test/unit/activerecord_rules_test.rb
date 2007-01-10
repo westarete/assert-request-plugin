@@ -11,7 +11,7 @@ class ActiveRecordRulesTest < Test::Unit::TestCase
   # Preserve class variables, so that we can mess with them, and they'll be
   # restored for any other tests.
   def setup
-    @old_ignore_columns = ActiveRecordRules.ignore_columns
+    @old_ignore_columns = ActiveRecordRules.ignore_columns.dup
   end
   
   def teardown
