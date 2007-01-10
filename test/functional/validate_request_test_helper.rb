@@ -25,55 +25,55 @@ class ValidateRequestController < ActionController::Base
   end
   
   def one_integer
-    assert_request(:get, :id => :integer)
+    assert_request(:get, "id" => :integer)
     render :nothing => true
   end
   
   def one_integer_with_block
     assert_request do |r|
       r.method   :get
-      r.required :id => :integer
+      r.required "id" => :integer
     end
     render :nothing => true
   end
 
   def two_integers
-    assert_request(:get, :id => :integer, :count => :integer)
+    assert_request(:get, "id" => :integer, "count" => :integer)
     render :nothing => true
   end
   
   def two_integers_with_block
     assert_request do |r|
       r.method   :get
-      r.required :id => :integer
-      r.required :count => :integer
+      r.required "id" => :integer
+      r.required "count" => :integer
     end
     render :nothing => true
   end
 
   def one_specific
-    assert_request(:get, :orientation => 'horizontal')
+    assert_request(:get, "orientation" => 'horizontal')
     render :nothing => true
   end
   
   def one_specific_with_block
     assert_request do |r|
       r.method   :get
-      r.required :orientation => 'horizontal'
+      r.required "orientation" => 'horizontal'
     end
     render :nothing => true
   end
   
   
   def one_integer_one_specific
-    assert_request(:get, :id => :integer, :orientation => 'horizontal')
+    assert_request(:get, "id" => :integer, "orientation" => 'horizontal')
     render :nothing => true
   end  
   
   def one_integer_one_specific_with_block
     assert_request do |r|
       r.method :get
-      r.required :id => :integer, :orientation => 'horizontal'
+      r.required "id" => :integer, "orientation" => 'horizontal'
     end
     render :nothing => true
   end  
@@ -127,43 +127,43 @@ class ValidateRequestController < ActionController::Base
   end
 
   def one_required_integer_one_optional_integer
-    assert_request(:get, {:id => :integer}, {:per_page => :integer})
+    assert_request(:get, {"id" => :integer}, {"per_page" => :integer})
     render :nothing => true
   end
 
   def one_required_integer_one_optional_integer_with_block
     assert_request do |r|
       r.method   :get
-      r.required :id       => :integer
-      r.optional :per_page => :integer
+      r.required "id"       => :integer
+      r.optional "per_page" => :integer
     end
     render :nothing => true
   end
   
   def simple_nested
-    assert_request(:get, :id => :integer, :page => {:count => :integer})
+    assert_request(:get, "id" => :integer, "page" => {"count" => :integer})
     render :nothing => true
   end
   
   def simple_nested_with_block
     assert_request do |r|
       r.method :get
-      r.required :id => :integer
-      r.required :page => {:count => :integer}
+      r.required "id" => :integer
+      r.required "page" => {"count" => :integer}
     end
     render :nothing => true
   end
   
   def double_nested
-    assert_request(:get, :id => :integer, :page => {:author => {:name => :text}})
+    assert_request(:get, "id" => :integer, "page" => {"author" => {"name" => :text}})
     render :nothing => true
   end
   
   def double_nested_with_block
     assert_request do |r|
       r.method :get
-      r.required :id => :integer
-      r.required :page => {:author => {:name => :text}}
+      r.required "id" => :integer
+      r.required "page" => {"author" => {"name" => :text}}
     end
     render :nothing => true
   end
@@ -171,18 +171,18 @@ class ValidateRequestController < ActionController::Base
   def double_nested_with_options
     assert_request(:get, 
       {
-        :id => :integer, 
-        :page => {
-          :author => {:name => :text},
+        "id" => :integer, 
+        "page" => {
+          "author" => {"name" => :text},
         },
       },
       {
-        :page => {
-          :author => {:optional_email => :text},
-          :optional_orientation => :text,
-          :optional_coauthor => {
-            :optional_name => :text,
-            :optional_email => :text,
+        "page" => {
+          "author" => {"optional_email" => :text},
+          "optional_orientation" => :text,
+          "optional_coauthor" => {
+            "optional_name" => :text,
+            "optional_email" => :text,
           },
         },        
       }
@@ -193,14 +193,14 @@ class ValidateRequestController < ActionController::Base
   def double_nested_with_options_with_block
     assert_request do |r|
       r.method   :get
-      r.required :id => :integer
-      r.required :page => {:author => {:name => :text}}
-      r.optional :page => {
-          :author => {:optional_email => :text},
-          :optional_orientation => :text,
-          :optional_coauthor => {
-            :optional_name => :text,
-            :optional_email => :text,
+      r.required "id" => :integer
+      r.required "page" => {"author" => {"name" => :text}}
+      r.optional "page" => {
+          "author" => {"optional_email" => :text},
+          "optional_orientation" => :text,
+          "optional_coauthor" => {
+            "optional_name" => :text,
+            "optional_email" => :text,
           }
         }
     end
@@ -209,29 +209,29 @@ class ValidateRequestController < ActionController::Base
   
   
   def required_dog
-    assert_request(:get, {:id => :integer, :dog => Dog})
+    assert_request(:get, {"id" => :integer, "dog" => Dog})
     render :nothing => true
   end
   
   def required_dog_with_block
     assert_request do |r|
       r.method :get
-      r.required :id  => :integer
-      r.required :dog => Dog
+      r.required "id"  => :integer
+      r.required "dog" => Dog
     end
     render :nothing => true
   end
   
   def optional_dog
-    assert_request(:get, {:id => :integer}, {:dog => Dog})
+    assert_request(:get, {"id" => :integer}, {"dog" => Dog})
     render :nothing => true
   end
   
   def optional_dog_with_block
     assert_request do |r|
       r.method :get
-      r.required :id  => :integer
-      r.optional :dog => Dog
+      r.required "id"  => :integer
+      r.optional "dog" => Dog
     end
     render :nothing => true
   end
@@ -261,62 +261,62 @@ class ValidateRequestController < ActionController::Base
   end
   
   def enumerated
-    assert_request(:get, {:color => ["red", "blue", "green"]}, {:admin => ["true", "false"]})
+    assert_request(:get, {"color" => ["red", "blue", "green"]}, {"admin" => ["true", "false"]})
     render :nothing => true
   end
   
   def enumerated_with_block
     assert_request do |r|
-      r.required :color => ["red", "blue", "green"]
-      r.optional :admin => ["true", "false"]
+      r.required "color" => ["red", "blue", "green"]
+      r.optional "admin" => ["true", "false"]
     end
     render :nothing => true
   end
 
   def collection_required
-    assert_request(:get, :person => {[] => {:name => :string}})
+    assert_request(:get, "person" => {[] => {"name" => :string}})
     render :nothing => true
   end
 
   def collection_required_with_block
     assert_request do |r|
-      r.required :person => {[] => {:name => :string}}
+      r.required "person" => {[] => {"name" => :string}}
     end
     render :nothing => true
   end
 
   def collection_optional
-    assert_request(:get, {}, {:person => {[] => {:name => :string}}})
+    assert_request(:get, {}, {"person" => {[] => {"name" => :string}}})
     render :nothing => true
   end
 
   def collection_optional_with_block
     assert_request do |r|
-      r.optional :person => {[] => {:name => :string}}
+      r.optional "person" => {[] => {"name" => :string}}
     end
     render :nothing => true
   end
   
   def collection_of_required_models
-    assert_request(:get, :dog => {[] => Dog})
+    assert_request(:get, "dog" => {[] => Dog})
     render :nothing => true
   end
     
   def collection_of_required_models_with_block
     assert_request do |r|
-      r.required :dog => {[] => Dog}
+      r.required "dog" => {[] => Dog}
     end
     render :nothing => true
   end
 
   def collection_of_optional_models
-    assert_request(:get, {}, {:dog => {[] => Dog}})
+    assert_request(:get, {}, {"dog" => {[] => Dog}})
     render :nothing => true
   end
     
   def collection_of_optional_models_with_block
     assert_request do |r|
-      r.optional :dog => {[] => Dog}
+      r.optional "dog" => {[] => Dog}
     end
     render :nothing => true
   end
