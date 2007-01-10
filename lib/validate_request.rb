@@ -40,7 +40,7 @@ module ValidateRequest
     unexpected = optional_params_rules.validate(non_required)
     # Anything left over is unexpected.
     unless unexpected.empty?
-      raise RequestError, "unexpected parameters: #{unexpected.inspect}"
+      raise RequestError, "unexpected params: #{unexpected.inspect}"
     end
     
     true

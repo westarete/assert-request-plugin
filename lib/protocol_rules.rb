@@ -19,7 +19,7 @@ module ValidateRequest
       # method.protocol leaves a trailing :// on its results.
       protocol = protocol.sub(/:\/\/$/, '').to_sym
       unless @requirements.include? protocol
-        raise RequestError, "request protocol #{protocol} is not permitted"
+        raise RequestError, "protocol #{protocol} is not permitted"
       end      
     end
     

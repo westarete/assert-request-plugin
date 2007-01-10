@@ -15,15 +15,15 @@ module ValidateRequest
       return if requirement == :text or requirement == :string
       if requirement == :integer
         unless @value.to_s =~ /^\d+$/
-          raise RequestError, "bad value for #{@key}: #{@value} is not an integer"
+          raise RequestError, "bad params value for #{@key}: #{@value} is not an integer"
         end
       elsif requirement.kind_of? Array
         unless requirement.detect { |r| r == @value }
-          raise RequestError, "bad value for #{@key}: #{@value} != '#{requirement.inspect}'"
+          raise RequestError, "bad params value for #{@key}: #{@value} != '#{requirement.inspect}'"
         end
       else
         unless @value == requirement
-          raise RequestError, "bad value for #{@key}: #{@value} != '#{requirement}'"
+          raise RequestError, "bad params value for #{@key}: #{@value} != '#{requirement}'"
         end
       end        
     end

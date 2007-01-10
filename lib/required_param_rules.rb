@@ -7,7 +7,7 @@ module ValidateRequest
     protected
     # We always raise an exception if we find a missing parameter.
     def skip_missing_parameter?(key)
-      raise RequestError, "missing parameter '#{key}'"
+      raise RequestError, "missing required param '#{key}'"
     end        
   end
 end
