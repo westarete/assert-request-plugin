@@ -22,11 +22,6 @@ module ValidateRequest
       rules = RequestRules.new(methods, requirements, options, protocols)
     end
     
-    # Remove the common parameters that are provided on each call, and don't
-    # need to be declared to validate_request.
-    original_params = params.dup
-    ParamRules.ignore_params.each {|key| original_params.delete(key)}
-    
     # Validate the request method.
     MethodRules.new(request.method).validate(rules.methods)
     
@@ -34,10 +29,12 @@ module ValidateRequest
     ProtocolRules.new(request.protocol).validate(rules.protocols)
     
     # Verify and eliminate all of the required arguments
-    non_required = RequiredParamRules.new(rules.requirements).validate(original_params)
+    non_required = RequiredParamRules.new(rules.requirements).validate(params)
     
     # Continue to verify and eliminate all of the optional arguments
     unexpected = OptionalParamRules.new(rules.options).validate(non_required)
+    
+    # Anything left over is unexpected.
     unless unexpected.empty?
       raise RequestError, "unexpected parameters: #{unexpected.inspect}"
     end
@@ -48,11 +45,15 @@ module ValidateRequest
     logger.error "Bad request: #{$!}" 
     logger.debug "  Method:"
     logger.debug "    permitted: #{rules.methods.inspect}"
-    logger.debug "    actual:    #{request.method.inspect}"
+    logger.debug "    actual:    #{request.method}"
+    logger.debug "  Protocol:"
+    logger.debug "    permitted: #{rules.protocols.inspect}"
+    logger.debug "    actual:    #{request.protocol}"
     logger.debug "  Parameters:"
     logger.debug "    required:  #{rules.requirements.inspect}"
     logger.debug "    optional:  #{rules.options.inspect}"
-    logger.debug "    actual:    #{original_params.inspect}"
+    logger.debug "    ignored:   #{ParamRules.ignore_params.inspect}"
+    logger.debug "    actual:    #{params.inspect}"
     raise
   end
     
