@@ -35,6 +35,7 @@ module ValidateRequest
     # params.
     def validate(params)
       returning params.dup do |copy_of_params|
+        @@ignore_params.each { |key| copy_of_params.delete key  }
         validate_and_delete!(@requirements, copy_of_params)
       end
     end
