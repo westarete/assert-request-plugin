@@ -30,14 +30,4 @@ class MethodRulesTest < Test::Unit::TestCase
     assert_raise(RequestError) { rules.validate(:put) }
   end
   
-  private
-  
-  # The opposite of assert_raise
-  def assert_not_raise(exception, &block)
-    yield
-    assert true
-  rescue exception => e
-    flunk "Received a #{exception.to_s} exception, but wasn't expecting one: #{e}"
-  end
-  
 end

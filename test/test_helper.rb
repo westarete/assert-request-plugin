@@ -21,3 +21,13 @@ unless defined? PLUGIN_ROOT
   schema_file = PLUGIN_ROOT + '/db/schema.rb'
   load(schema_file) if File.exist?(schema_file)
 end
+
+class Test::Unit::TestCase
+  # The opposite of assert_raise
+  def assert_not_raise(exception, &block)
+    yield
+    assert true
+  rescue exception => e
+    flunk "Received a #{exception.to_s} exception, but wasn't expecting one: #{e}"
+  end
+end

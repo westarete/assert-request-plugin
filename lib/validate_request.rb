@@ -26,7 +26,7 @@ module ValidateRequest
     MethodRules.new(rules.methods).validate(request.method)
     
     # Validate the request protocol.
-    ProtocolRules.new(request.protocol).validate(rules.protocols)
+    ProtocolRules.new(rules.protocols).validate(request.protocol)
     
     # Verify and eliminate all of the required arguments
     non_required = RequiredParamRules.new(rules.requirements).validate(params)

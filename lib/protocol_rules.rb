@@ -3,19 +3,23 @@ require 'request_error'
 module ValidateRequest
   # Defines how we handle and validate the request protocol.
   class ProtocolRules #:nodoc:
+    attr_reader :requirements
     
-    def initialize(protocol)
-      # Strip the trailing :// off the protocol.
-      @protocol = protocol.sub(/:\/\/$/, '').to_sym
+    def initialize(requirements=[])
+      @requirements = []
+      @requirements << requirements
+      @requirements.flatten!
+      if @requirements.empty?
+        @requirements << :http
+      end
     end
     
-    # Check the request protocol against the given set of permissible protocols.
-    def validate(requirements)
-      if requirements.empty?
-        requirements = [:http]
-      end
-      unless requirements.detect {|m| @protocol == m}
-        raise RequestError, "request protocol #{@protocol} is not permitted"
+    # Check the given request protocol.Raises an exception if it is invalid.
+    def validate(protocol)
+      # method.protocol leaves a trailing :// on its results.
+      protocol = protocol.sub(/:\/\/$/, '').to_sym
+      unless @requirements.include? protocol
+        raise RequestError, "request protocol #{protocol} is not permitted"
       end      
     end
     

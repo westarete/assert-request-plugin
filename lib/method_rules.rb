@@ -10,15 +10,16 @@ module ValidateRequest
       @requirements << requirements
       @requirements.flatten!
       if @requirements.empty?
-        @requirements = [:get]
+        @requirements << :get
       end
     end
     
-    # Check the request method against the given set of permissible methods.
+    # Check the given request method. Raises an exception if it is invalid.
     def validate(method)
       unless @requirements.include? method
         raise RequestError, "request method #{method} is not permitted"
       end      
     end
+    
   end 
 end  
