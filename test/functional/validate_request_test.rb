@@ -276,10 +276,12 @@ class ValidateRequestControllerTest < Test::Unit::TestCase
   end
   
   def test_set_ignore_params
+    old_ignore = ValidateRequest::ParamRules.ignore_params.dup
     assert_invalid_request :get, :one_integer, :id => '3', :undefined => '4'
     ValidateRequest::ParamRules.ignore_params << :undefined
     assert_valid_request   :get, :one_integer, :id => '3', :undefined => '4'
     assert_invalid_request :get, :one_integer, :id => '3', :still_undefined => '4'
+    ValidateRequest::ParamRules.ignore_params = old_ignore
   end
   
 private
