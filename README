@@ -1,41 +1,64 @@
 == ValidateRequest
 
-This plugin allows you to specify and check the method and parameters that are
-used to call your actions.
+This plugin provides an easy way to make sure that your rails actions are 
+only called with the method, protocol, and parameters that you expect. 
 
-For example, here's a typical action in a typical controller:
+This can save a considerable amount of error-checking code, uncover hidden
+bugs, and prevent security holes. 
 
-  class KittenController < ActionController::Base
-    def show
-      @kitten = Kitten.find(params[:id])
-    end 
+For example, here's a typical update action:
+
+  def update
+    @person = Person.find params[:id]
+    if @person.update_attributes(params[:person])
+      flash[:notice] = 'Person was successfully updated.'
+      redirect_to :action => 'show', :id => @person
+    else
+      render :action => 'edit'
+    end
   end
 
-This is ordinarily invoked with a URL such as '/kitten/show/5'. The problem is
-that if someone visits the url '/kitten/show' or /kitten/show/blech', an
-exception will be thrown.
+This code works fine as long as the request is always well formed, but we need
+to plan for incomplete, broken, or simply strange requests, both intentional
+and unintentional.
 
-Furthermore, if someone visits the URL '/kitten/show/5&this_kitten=sucks',
-your application will be none the wiser. Nothing will break, but sometimes
-you'd like to know about these things, for instance to detect when you have a
-typo in a GET argument that's originating in another part of your application.
+If we were to hand-code all of the contingencies that we might run into while
+dealing with anonymous input from the request, we'd have a pretty messy action
+that's littered with lots of conditions for detecting and dealing with bad
+parameters. 
 
-ValidateRequest allows you to double check these things, and act
-appropriately. For instance, we could solve the above problem by adding one
-line to our action:
+Instead, we can call assert_request at the beginning of the method to make
+sure that the request contains exactly what we expect. This makes the code far
+more robust, and saves us from writing a considerable amount of error-checking
+code. Here's an example of how we might use assert_request on the same action:
 
-  class KittenController < ActionController::Base
-    def show
-      validate_request(:get, :id => :integer) or return
-      @kitten = Kitten.find(params[:id])
-    end 
+  def update
+    assert_request do |r|
+      r.method :post
+      r.required 'id' => :integer
+      r.required 'person' => Person, :except => :company_id
+    end
+    # the rest of the action is unchanged
   end
 
-The +validate_request+ method will now verify that incoming requests are via
-the GET method, and that they contain one argument called 'id' whose value is
-an integer. If any of these conditions aren't true, the requester is
-redirected to the site's home page (configurable, of course), and
-<tt>flash[:error]</tt> is set with a polite message (also configurable).
+This specification now ensures several things for this action:
+
+* The request method must be POST
+* The params hash contains an "id" attribute whose value is an integer
+* The params hash contains a "person" attribute whose value is a hash that 
+  reprsents the Person model, excluding its "company_id" attribute
+
+assert_request examines the Person model, and expands it in place as if you'd
+specified all of its attributes by hand.
+
+Now if we receive a request that doesn't match our specification, then the
+application will raise a RequestError exception, and we'll get a detailed
+message in the logs. In development mode, the exception and its explanation
+will be displayed in the browser. In production mode, we can use the
+exception_notification plugin to either render a 404 Not Found response, email
+us, or both.
+
+For all of the details on usage, see ValidateRequest#assert_request
 
 == Installation
 
@@ -45,54 +68,37 @@ application's directory:
   ./script/plugin source svn://rubyforge.org//var/svn/validaterequest/plugins
   ./script/plugin install validate_request
 
-That's it. You're ready to add calls to +validate_request+ to your actions.
+That's it. You're ready to add calls to assert_request to your actions.
 
-== Quick Start
+== Handling the Exceptions
 
-The above examples show you how to specify simple scalar requirements for the
-parameters. Here are some more examples of different options and types to get
-you started. Read the USAGE file if you'd like even more detail.
+As mentioned before, the exceptions will go directly to your browser while
+in development mode, just like any other exception. In addition, you'll get
+detailed information in the logs about what went wrong with the request.
 
-You can allow more than one type of request method by making the first 
-argument an array:
+In production mode however, you probably want to change the behavior. Since
+assert_request throws a specific type of exception
+(ValidateRequest::RequestError), we can catch those at the top level and treat
+them differently than a typical Ruby RuntimeException. You can either do this
+by overriding the standard rails rescue_action_in_public method, or you can
+use the exception_notification plugin (my preferred method).
 
-  def show
-    validate_request([:get, :post], :id => :integer) or return
+The exception_notification plugin sends descriptive emails to a given address
+when your application encounters errors while running in production mode. We
+can modify it slightly so that it either 
 
-You can specify a second hash of parameter constraints, which are considered
-optional. For example, the following declaration states that the request can
-have an optional parameter +:orientation+ (but it must have the integer 
-parameter +:id+):
+If you're not going to use exception_notifier, and you just want assert_request
+to log the error and display the 404 Not Found page, then you can define a 
+simple rescue_action_in_public in your application.rb, such as this one, which
+piggybacks onto the existing rescue_action_in_public:
 
-  def show
-    validate_request(:get, 
-                     {:id => :integer}, 
-                     {:orientation => :text}) or return
-    ...                     
+  def rescue_action_in_public_with_request_error(exception)
+    if exception.kind_of? ValidateRequest::RequestError
+      render :file => "#{RAILS_ROOT}/public/404.html", :status => "404 Not Found"
+    end
+  end
 
-You can nest parameters:
-
-  def show_author
-    validate_request(:get 
-                     :id => :integer, 
-                     :author => {:name => :text}) or return
-    ...                     
-
-To simplify common CRUD form operations, you can specify ActiveRecord models
-as types. For example:
-
-  def update
-    validate_request(:post, 
-                     {:id => :integer}, 
-                     {:kitten => Kitten}) or return
-    ...
-
-which requires an integer +:id+, and optionally can include a +:kitten+
-parameter, whose value is a hash of any of the column names and types from the
-Kitten model.
-
-Once again, read the USAGE file if you'd like more detail about what's
-allowed, and how things work.
+  alias_method_chain :rescue_action_in_public, :request_error
 
 == Author
 
