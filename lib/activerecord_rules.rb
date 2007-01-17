@@ -5,7 +5,7 @@ module ValidateRequest
     # The set of columns in the ActiveRecord model that we should ignore by
     # default. You could modify this in your environment.rb if its default 
     # settings don't suit your appliction. 
-    @@ignore_columns = %w( id created_at updated_at created_on updated_on )
+    @@ignore_columns = %w( id created_at updated_at created_on updated_on lock_version )
     
     # I had to define the cattr_accessor methods myself, since I kept getting
     # an error that cattr_accessor was not defined. Couldn't solve it the 
