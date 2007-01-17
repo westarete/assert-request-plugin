@@ -1,3 +1,9 @@
+* Can't use types on ActiveRecord rules, since this should be handled by the
+  validation. If someone puts a non-number into a text field for an integer,
+  we don't want to raise and exception and give a 404. We could just have all
+  activerecord columns set to text, but then this prevents checking foreign
+  id fields. Maybe those foreign id fields should still be integer?
+
 * Improve rdoc documentation for public use. README should cover
   justification, installation, and how to handle the resulting exceptions.
   The assert_request method should be documented with the actual usage and
