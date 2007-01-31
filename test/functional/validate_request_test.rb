@@ -175,7 +175,8 @@ class ValidateRequestControllerTest < Test::Unit::TestCase
 
   def test_required_model
     assert_valid_request :get, :required_dog, "id" => '5', "dog" => {"name" => 'luther', "breed" => 'bouvier', "age_in_years" => '12'}
-    assert_invalid_request :get, :required_dog, "id" => '5', "dog" => {"name" => 'luther', "breed" => 'bouvier', "age_in_years" => '12a'}
+    # We don't pay attention to the fact that the integer field contains text -- this should be handled by validation, not us.
+    assert_valid_request :get, :required_dog, "id" => '5', "dog" => {"name" => 'luther', "breed" => 'bouvier', "age_in_years" => '12a'}
     assert_invalid_request :get, :required_dog, "id" => '5a', "dog" => {"name" => 'luther', "breed" => 'bouvier', "age_in_years" => '12'}
     assert_invalid_request :get, :required_dog, "id" => '5', "dog" => {"breed" => 'bouvier', "age_in_years" => '12'}
     assert_invalid_request :get, :required_dog, "id" => '5', "dog" => {"name" => 'luther', "breed" => 'bouvier', "age_in_years" => '12', "extra" => 'bad'}
@@ -189,9 +190,10 @@ class ValidateRequestControllerTest < Test::Unit::TestCase
     assert_valid_request :get, :optional_dog, "id" => '5', "dog" => {"breed" => 'bouvier', "age_in_years" => '12'}
     assert_valid_request :get, :optional_dog, "id" => '5', "dog" => {}
     assert_valid_request :get, :optional_dog, "id" => '5'
+    # We don't pay attention to the fact that the integer field contains text -- this should be handled by validation, not us.
+    assert_valid_request :get, :optional_dog, "id" => '5', "dog" => {"name" => 'luther', "breed" => 'bouvier', "age_in_years" => '12a'}
     assert_invalid_request :get, :optional_dog, "id" => '5', "dog" => ''
     assert_invalid_request :get, :optional_dog, "id" => '5', "dog" => nil
-    assert_invalid_request :get, :optional_dog, "id" => '5', "dog" => {"name" => 'luther', "breed" => 'bouvier', "age_in_years" => '12a'}
     assert_invalid_request :get, :optional_dog, "id" => '5', "dog" => {"name" => 'luther', "breed" => 'bouvier', "age_in_years" => '12', "extra" => 'bad'}    
   end
   

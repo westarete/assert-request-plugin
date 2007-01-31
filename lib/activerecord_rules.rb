@@ -60,8 +60,9 @@ module ValidateRequest
         end
         # Convert each activerecord type into a type that we recognize.
         columns.each do |c|
-          # For right now, we only support integer and text.
-          expanded[c.name] = (c.type == :integer) ? :integer : :text
+          # We leave all parameters as strings, since we want their format 
+          # to be checked by validation, not by us.
+          expanded[c.name] = :string
         end
       end
     end

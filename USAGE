@@ -19,9 +19,8 @@ have. These can take several forms:
 === Basic Types
 
 Currently, +validate_request+ only recognizes two basic types: +:integer+ and
-+:text+ (or +:string+, if you prefer). Basically, no checks are done on values
-of type +:text+ or +:string+. Support for more basic types could probably be
-added if it's requested enough.
++:string+. Basically, no checks are done on values of type +:string+. Support
+for more basic types could probably be added if it's requested enough.
 
 I decided to only support positive integers, since they're mostly what you see
 in rails applications. Currently, I think it's a feature to disallow negative
@@ -43,7 +42,7 @@ It's important to support nested hashes, since rails uses them frequently in
 the params hash. So, you can specify them the same way as you'd expect to be
 able to:
 
-  :id => :integer, :dog => {:name => :text, :age_in_years => :integer}
+  :id => :integer, :dog => {:name => :string, :age_in_years => :integer}
   
 You can nest hashes as deeply as you'd like.  
 

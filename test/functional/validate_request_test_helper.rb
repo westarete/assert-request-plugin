@@ -155,7 +155,7 @@ class ValidateRequestController < ActionController::Base
   end
   
   def double_nested
-    assert_request(:get, "id" => :integer, "page" => {"author" => {"name" => :text}})
+    assert_request(:get, "id" => :integer, "page" => {"author" => {"name" => :string}})
     render :nothing => true
   end
   
@@ -163,7 +163,7 @@ class ValidateRequestController < ActionController::Base
     assert_request do |r|
       r.method :get
       r.required "id" => :integer
-      r.required "page" => {"author" => {"name" => :text}}
+      r.required "page" => {"author" => {"name" => :string}}
     end
     render :nothing => true
   end
@@ -173,16 +173,16 @@ class ValidateRequestController < ActionController::Base
       {
         "id" => :integer, 
         "page" => {
-          "author" => {"name" => :text},
+          "author" => {"name" => :string},
         },
       },
       {
         "page" => {
-          "author" => {"optional_email" => :text},
-          "optional_orientation" => :text,
+          "author" => {"optional_email" => :string},
+          "optional_orientation" => :string,
           "optional_coauthor" => {
-            "optional_name" => :text,
-            "optional_email" => :text,
+            "optional_name" => :string,
+            "optional_email" => :string,
           },
         },        
       }
@@ -194,13 +194,13 @@ class ValidateRequestController < ActionController::Base
     assert_request do |r|
       r.method   :get
       r.required "id" => :integer
-      r.required "page" => {"author" => {"name" => :text}}
+      r.required "page" => {"author" => {"name" => :string}}
       r.optional "page" => {
-          "author" => {"optional_email" => :text},
-          "optional_orientation" => :text,
+          "author" => {"optional_email" => :string},
+          "optional_orientation" => :string,
           "optional_coauthor" => {
-            "optional_name" => :text,
-            "optional_email" => :text,
+            "optional_name" => :string,
+            "optional_email" => :string,
           }
         }
     end
