@@ -54,7 +54,7 @@ class ValidateRequestControllerTest < Test::Unit::TestCase
     assert_invalid_request :get, :one_integer_one_specific, {"id" => '4a', "orientation" => 'vertical'}
   end
 
-  def test_method_ruless
+  def test_method_rules
     assert_valid_request :get, :get_only
     assert_invalid_request :post, :get_only
     assert_invalid_request :put, :get_only
