@@ -47,17 +47,26 @@ class ParamRulesTest < Test::Unit::TestCase
     end
   end
   
-  def test_nested
-    parent = ParamRules.new
-    child1 = add_child(parent, true, :id)
-    child2 = add_child(parent, false, :name)
-    grandchild1 = add_child(child1, false, :person)
-    grandchild2 = add_child(child1, false, :person)
-    assert_equal 2, parent.children.length
-    assert_equal 2, child1.children.length
-    assert_equal 0, child2.children.length
-    assert_equal 0, grandchild1.children.length
-    assert_equal 0, grandchild2.children.length
+  def test_blocks
+    root = ParamRules.new
+    root.must_have :id
+    root.must_have :person do |person|
+      person.must_have :name
+      person.may_have :age, :height
+      person.may_have(:dog) { |d| d.must_have :id }
+    end
+    assert_equal 2, root.children.length
+    assert_equal :id,     root.children.first.name
+    person = root.children.last
+    assert_equal :person, person.name
+    assert_equal 4, person.children.length
+    assert_equal :name, person.children[0].name
+    assert_equal :age, person.children[1].name
+    assert_equal :height, person.children[2].name
+    assert_equal :dog, person.children[3].name
+    dog = person.children[3]
+    assert_equal 1, dog.children.length
+    assert_equal :id, dog.children.first.name
   end
   
   def test_canonical_name
@@ -72,6 +81,45 @@ class ParamRulesTest < Test::Unit::TestCase
     assert_equal "params[:id][:person]", grandchild1.canonical_name
     assert_equal "params[:id][:dog]",    grandchild2.canonical_name
   end
+  
+  def test_validate_one_required_param
+    root = ParamRules.new
+    root.must_have :id
+    assert_not_raise(AssertRequest::RequestError) { root.validate({"id" => 4}) }
+    assert_raise(AssertRequest::RequestError) { root.validate({"not_id" => 4}) }
+  end
+  
+  def test_validate_one_optional_param
+    root = ParamRules.new
+    root.may_have :id
+    assert_not_raise(AssertRequest::RequestError) { root.validate({"id" => 4}) }
+    assert_not_raise(AssertRequest::RequestError) { root.validate({"not_id" => 4}) }
+  end
+
+  def test_validate_multiple_params
+    root = ParamRules.new
+    root.must_have :id, :name
+    assert_not_raise(AssertRequest::RequestError) { root.validate({"id" => 4, "name" => "john"}) }
+    assert_raise(AssertRequest::RequestError) { root.validate({"id" => 4}) }
+    assert_raise(AssertRequest::RequestError) { root.validate({"name" => "john"}) }
+    assert_raise(AssertRequest::RequestError) { root.validate({}) }
+  end
+  
+  def test_validate_nested_params
+    root = ParamRules.new
+    root.must_have :id
+    root.must_have :person do |person|
+      person.must_have :name do |name|
+        name.must_have :first
+      end
+      person.must_have :age
+    end
+    assert_not_raise(AssertRequest::RequestError) { root.validate({"id" => 4, "person" => {"name" => {"first" => "john"}, "age" => 12}}) }
+    assert_raise(AssertRequest::RequestError)     { root.validate({"id" => 4, "person" => {"name" => {"not_first" => "john"}, "age" => 12}}) }
+    assert_raise(AssertRequest::RequestError)     { root.validate({"id" => 4, "person" => {"name" => {"first" => "john"}, "not_age" => 12}}) }
+    assert_raise(AssertRequest::RequestError)     { root.validate({"id" => 4, "person" => {"name" => {"first" => "john"}}}) }
+    assert_raise(AssertRequest::RequestError)     { root.validate({"id" => 4, "person" => {"not_name" => {"first" => "john"}, "age" => 12}}) }
+  end    
   
   private
   

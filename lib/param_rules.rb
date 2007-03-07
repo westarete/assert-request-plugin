@@ -35,6 +35,21 @@ module AssertRequest
       end
     end
     
+    # Validate the given parameters against our requirements, raising 
+    # exceptions for bad parameters, and returning a hash of any unrecognized
+    # params.
+    def validate(params)
+      children.each do |child|
+        name = child.name.to_s
+        if params.has_key?(name)
+          if params[name].is_a?(Hash)
+            child.validate(params[name])
+          end
+        elsif child.required?
+          raise RequestError, "missing #{child.canonical_name}"
+        end
+      end
+    end
 
     private
     
