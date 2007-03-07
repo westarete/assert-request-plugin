@@ -21,11 +21,15 @@ module ValidateRequest
   class RequestRules #:nodoc:
     attr_reader :methods, :requirements, :options, :protocols
 
-    def initialize
+    def initialize(methods=[], requirements={}, options={}, protocols=[])
       @methods      = []
       @requirements = {}
       @options      = {}
       @protocols    = []
+      method(methods)
+      required(requirements)
+      optional(options)
+      protocol(protocols)
     end
 
     # Add one or more request methods (symbol name, e.g. :get) to the list of  
