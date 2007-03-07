@@ -16,7 +16,7 @@ class Hash #:nodoc:
   end
 end
 
-module ValidateRequest
+module AssertRequest
   # Holds the definition of the rules for a valid request
   class RequestRules #:nodoc:
     attr_reader :methods, :requirements, :options, :protocols

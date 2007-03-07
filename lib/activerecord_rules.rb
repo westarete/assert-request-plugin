@@ -1,4 +1,4 @@
-module ValidateRequest
+module AssertRequest
   # Represents a requirement whose type is an ActiveRecord class.
   class ActiveRecordRules #:nodoc:
     

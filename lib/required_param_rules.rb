@@ -1,6 +1,6 @@
 require 'param_rules'
 
-module ValidateRequest
+module AssertRequest
   # A child of ParamRules that always requires that the parameters match
   # the requirements exactly.
   class RequiredParamRules < ParamRules #:nodoc:

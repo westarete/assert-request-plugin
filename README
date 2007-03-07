@@ -1,4 +1,4 @@
-== ValidateRequest
+== AssertRequest
 
 This plugin provides an easy way to make sure that your rails actions are 
 only called with the method, protocol, and parameters that you expect. 
@@ -58,7 +58,7 @@ will be displayed in the browser. In production mode, we can use the
 exception_notification plugin to either render a 404 Not Found response, email
 us, or both.
 
-For all of the details on usage, see ValidateRequest#assert_request
+For all of the details on usage, see AssertRequest#assert_request
 
 == Installation
 
@@ -66,7 +66,7 @@ Install the plugin by running the following commands from your rails
 application's directory:
 
   ./script/plugin source svn://rubyforge.org//var/svn/validaterequest/plugins
-  ./script/plugin install validate_request
+  ./script/plugin install assert_request
 
 That's it. You're ready to add calls to assert_request to your actions.
 
@@ -78,7 +78,7 @@ detailed information in the logs about what went wrong with the request.
 
 In production mode however, you probably want to change the behavior. Since
 assert_request throws a specific type of exception
-(ValidateRequest::RequestError), we can catch those at the top level and treat
+(AssertRequest::RequestError), we can catch those at the top level and treat
 them differently than a typical Ruby RuntimeException. You can either do this
 by overriding the standard rails rescue_action_in_public method, or you can
 use the exception_notification plugin (my preferred method).
@@ -93,7 +93,7 @@ simple rescue_action_in_public in your application.rb, such as this one, which
 piggybacks onto the existing rescue_action_in_public:
 
   def rescue_action_in_public_with_request_error(exception)
-    if exception.kind_of? ValidateRequest::RequestError
+    if exception.kind_of? AssertRequest::RequestError
       render :file => "#{RAILS_ROOT}/public/404.html", :status => "404 Not Found"
     end
   end

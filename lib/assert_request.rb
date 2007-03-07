@@ -1,4 +1,4 @@
-# validate_request Rails Plugin
+# assert_request Rails Plugin
 #
 # (c) Copyright 2006 by West Arete Computing, Inc.
 
@@ -10,7 +10,7 @@ require 'required_param_rules'
 require 'optional_param_rules'
 require 'request_error'
 
-module ValidateRequest
+module AssertRequest
 
   # Call this method at the beginning of your action to verify that the current
   # parameters match your idea of a valid set of values.

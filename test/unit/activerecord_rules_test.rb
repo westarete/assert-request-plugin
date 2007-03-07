@@ -6,7 +6,7 @@ class Dog < ActiveRecord::Base ; end
 
 class ActiveRecordRulesTest < Test::Unit::TestCase
 
-  include ValidateRequest
+  include AssertRequest
   
   # Preserve class variables, so that we can mess with them, and they'll be
   # restored for any other tests.

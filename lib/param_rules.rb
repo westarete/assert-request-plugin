@@ -1,7 +1,7 @@
 require 'param_pair_rules'
 require 'request_error'
 
-module ValidateRequest
+module AssertRequest
   
   # An abstract class that describes how we generally treat sets of parameters
   # and their requirements. Child classes must implement the 

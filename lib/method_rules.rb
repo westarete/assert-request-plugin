@@ -1,6 +1,6 @@
 require 'request_error'
 
-module ValidateRequest
+module AssertRequest
   # Defines how we handle and validate the request method.
   class MethodRules #:nodoc:
     attr_reader :requirements

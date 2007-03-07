@@ -1,17 +1,17 @@
-# validate_request Rails Plugin
+# assert_request Rails Plugin
 #
 # (c) Copyright 2006 by West Arete Computing, Inc.
 
 require File.dirname(__FILE__) + '/../test_helper'
-require 'validate_request'
-require File.dirname(__FILE__) + '/validate_request_test_helper'
+require 'assert_request'
+require File.dirname(__FILE__) + '/assert_request_test_helper'
 
 # Re-raise errors caught by the controller.
-class ValidateRequestController; def rescue_action(e) raise e end; end
+class AssertRequestController; def rescue_action(e) raise e end; end
 
-class ValidateRequestControllerTest < Test::Unit::TestCase
+class AssertRequestControllerTest < Test::Unit::TestCase
   def setup
-    @controller = ValidateRequestController.new
+    @controller = AssertRequestController.new
     @request    = ActionController::TestRequest.new
     @response   = ActionController::TestResponse.new
   end
@@ -278,12 +278,12 @@ class ValidateRequestControllerTest < Test::Unit::TestCase
   end
   
   def test_set_ignore_params
-    old_ignore = ValidateRequest::ParamRules.ignore_params.dup
+    old_ignore = AssertRequest::ParamRules.ignore_params.dup
     assert_invalid_request :get, :one_integer, "id" => '3', "undefined" => '4'
-    ValidateRequest::ParamRules.ignore_params << "undefined"
+    AssertRequest::ParamRules.ignore_params << "undefined"
     assert_valid_request   :get, :one_integer, "id" => '3', "undefined" => '4'
     assert_invalid_request :get, :one_integer, "id" => '3', "still_undefined" => '4'
-    ValidateRequest::ParamRules.ignore_params = old_ignore
+    AssertRequest::ParamRules.ignore_params = old_ignore
   end
   
 private
@@ -301,14 +301,14 @@ private
       
     self.send(method.to_s, url.to_s, *args)
     assert_response :success
-  rescue ValidateRequest::RequestError => e
+  rescue AssertRequest::RequestError => e
     flunk "Received a RequestError exception, but wasn't expecting one: <#{e}>"
   end
   
   # Works like "get" or "post", only it also asserts that we get a failure
   # for the given request.
   def assert_invalid_request(method, url, *args)
-    assert_raise(ValidateRequest::RequestError) { self.send(method.to_s, url.to_s, *args) }
+    assert_raise(AssertRequest::RequestError) { self.send(method.to_s, url.to_s, *args) }
   end
   
 end

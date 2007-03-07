@@ -1,1 +1,1 @@
-ActionController::Base.send :include, ValidateRequest
+ActionController::Base.send :include, AssertRequest

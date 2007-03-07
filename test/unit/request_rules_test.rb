@@ -3,7 +3,7 @@ require 'request_rules'
 
 class RequestRulesTest < Test::Unit::TestCase
 
-  include ValidateRequest
+  include AssertRequest
     
   def test_methods
     r = RequestRules.new

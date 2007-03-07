@@ -1,6 +1,6 @@
 require 'param_rules'
 
-module ValidateRequest
+module AssertRequest
   # A child of ParamRules that doesn't mind of some of the permitted 
   # parameters are missing from the actual parameters.
   class OptionalParamRules < ParamRules #:nodoc:

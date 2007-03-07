@@ -2,7 +2,7 @@
 
 == Arguments
 
-+validate_request+ accepts three arguments, all of which are optional:
++assert_request+ accepts three arguments, all of which are optional:
 
 * +valid_method_ruless+ - One or more (in an array) symbols representing the
   HTTP request methods that this action supports. The default is :get.
@@ -18,7 +18,7 @@ have. These can take several forms:
 
 === Basic Types
 
-Currently, +validate_request+ only recognizes two basic types: +:integer+ and
+Currently, +assert_request+ only recognizes two basic types: +:integer+ and
 +:string+. Basically, no checks are done on values of type +:string+. Support
 for more basic types could probably be added if it's requested enough.
 
@@ -61,14 +61,14 @@ both our model and our request validation.
 
 == Handling Bad Requests
 
-+validate_request+ will always return true or false to indicate whether the
++assert_request+ will always return true or false to indicate whether the
 request met the definition or not. If you don't like the default behavior of
 setting <tt>flash[:error]</tt> and redirecting, you can turn those options off
 (see Configuration, below), and use this return value to implement your own
 behavior.
 
 It's usually a good idea to return immediately from the current action if
-+validate_request+ returns false. This is because redirects in rails do not
++assert_request+ returns false. This is because redirects in rails do not
 take effect immediately; they only happen once the action has completed. So
 you'll probably need to return explicitly (as in the examples here) to avoid
 executing the rest of your action in the case of a bad request.
@@ -82,7 +82,7 @@ this behavior by setting the following class variables (for example, within
 
 * *@@redirect_for_bad_request* - Set this to the URL to redirect to if we get
   a bad request. Set to nil if you do not want a redirect (and just want to
-  test the return value of validate_request). The default is the URL '/'.
+  test the return value of assert_request). The default is the URL '/'.
 
 * *@@flash_error_for_bad_request* - Set this to the string that should be
   assigned to <tt>flash[:error]</tt> if we should get a bad request. Set it to
@@ -93,8 +93,8 @@ this behavior by setting the following class variables (for example, within
 
 If you still have questions, it may also be worthwhile to look in the +test+
 directory to see a fairly wide range of examples. You'll primarily be
-interested in +validate_request_test_helper.rb+, which sets up a test model
-and controller against which tests can be run, and +validate_request_test.rb+,
+interested in +assert_request_test_helper.rb+, which sets up a test model
+and controller against which tests can be run, and +assert_request_test.rb+,
 which makes the different calls to the test controller and checks the
 responses.
 

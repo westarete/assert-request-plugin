@@ -4,7 +4,7 @@ require 'optional_param_rules'
 
 class ParamRulesTest < Test::Unit::TestCase
 
-  include ValidateRequest
+  include AssertRequest
   
   # Preserve class variables, so that we can mess with them, and they'll be
   # restored for any other tests.
@@ -20,7 +20,7 @@ class ParamRulesTest < Test::Unit::TestCase
     rules = RequiredParamRules.new 'id' => :integer
     assert_equal({}, rules.validate('id' => '5'))
     assert_equal({'extra' => 'unknown'}, rules.validate('id' => '5', 'extra' => 'unknown'))
-    assert_raise(ValidateRequest::RequestError) { rules.validate({'id' => 'not_an_integer'}) }
+    assert_raise(AssertRequest::RequestError) { rules.validate({'id' => 'not_an_integer'}) }
   end
   
   def test_multiple_variables
@@ -37,16 +37,16 @@ class ParamRulesTest < Test::Unit::TestCase
     assert_equal({}, required.validate('person' => {'1' => {'name' => 'Tony'}, '2' => {'name' => 'Bob'}}))    
     
     assert_equal({'person' => {'1' => {'extra' => 'unknown'}}}, required.validate('person' => {'1' => {'name' => 'Tony', 'extra' => 'unknown'}}))
-    assert_raise(ValidateRequest::RequestError) { required.validate('not_a_person' => {'1' => {'name' => 'Tony'}, '2' => {'name' => 'Bob'}}) }
-    assert_raise(ValidateRequest::RequestError) { required.validate('person' => {'not_an_index' => {'name' => 'Tony'}}) }
-    assert_raise(ValidateRequest::RequestError) { required.validate('person' => {'1' => {'not_a_name' => 'Tony'}}) }
-    assert_raise(ValidateRequest::RequestError) { required.validate('person' => {'1' => {}}) }
-    assert_raise(ValidateRequest::RequestError) { required.validate('person' => {}) }
+    assert_raise(AssertRequest::RequestError) { required.validate('not_a_person' => {'1' => {'name' => 'Tony'}, '2' => {'name' => 'Bob'}}) }
+    assert_raise(AssertRequest::RequestError) { required.validate('person' => {'not_an_index' => {'name' => 'Tony'}}) }
+    assert_raise(AssertRequest::RequestError) { required.validate('person' => {'1' => {'not_a_name' => 'Tony'}}) }
+    assert_raise(AssertRequest::RequestError) { required.validate('person' => {'1' => {}}) }
+    assert_raise(AssertRequest::RequestError) { required.validate('person' => {}) }
     
     assert_equal({}, optional.validate('person' => {'1' => {'name' => 'Tony'}}))    
     assert_equal({}, optional.validate('person' => {'1' => {'name' => 'Tony'}, '2' => {'name' => 'Bob'}}))
     assert_equal({}, optional.validate({}))
-    assert_raise(ValidateRequest::RequestError) { assert_equal({}, required.validate({})) }
+    assert_raise(AssertRequest::RequestError) { assert_equal({}, required.validate({})) }
   end
 
   def test_bad_collection_declaration

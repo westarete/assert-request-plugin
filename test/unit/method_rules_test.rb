@@ -2,7 +2,7 @@ require File.dirname(__FILE__) + '/../test_helper'
 require 'method_rules'
 
 class MethodRulesTest < Test::Unit::TestCase
-  include ValidateRequest
+  include AssertRequest
 
   def test_initialize
     assert_equal [:get], MethodRules.new(:get).requirements

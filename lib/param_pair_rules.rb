@@ -1,6 +1,6 @@
 require 'request_error'
 
-module ValidateRequest
+module AssertRequest
   # Represents one key/value parameter pair
   class ParamPairRules #:nodoc:
     attr_accessor :key, :value

@@ -1,4 +1,4 @@
-# validate_request Rails Plugin
+# assert_request Rails Plugin
 #
 # (c) Copyright 2006 by West Arete Computing, Inc.
 
@@ -8,8 +8,8 @@ class Dog < ActiveRecord::Base ; end
 # A controller with fake actions that we can call to test their different
 # request was deemed to be valid, and redirect if the request was deemed to
 # be invalid.
-class ValidateRequestController < ActionController::Base
-  include ValidateRequest
+class AssertRequestController < ActionController::Base
+  include AssertRequest
 
   # Redefine the "render" method to render nothing, so that we don't have
   # to create views for our actions or call "render :nothing => true" at the

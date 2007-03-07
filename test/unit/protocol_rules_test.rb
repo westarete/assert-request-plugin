@@ -2,7 +2,7 @@ require File.dirname(__FILE__) + '/../test_helper'
 require 'method_rules'
 
 class ProtocolRulesTest < Test::Unit::TestCase
-  include ValidateRequest
+  include AssertRequest
 
   def test_initialize
     assert_equal [:http], ProtocolRules.new(:http).requirements
