@@ -15,11 +15,7 @@ module ValidateRequest
   # Call this method at the beginning of your action to verify that the current
   # parameters match your idea of a valid set of values.
   def assert_request(methods=[], requirements={}, options={}, protocols=[])
-    unless block_given?
-      raise "missing required block"
-    end
-
-    # Yield to the request rules, so that it can collect the requirements.
+    # Collect the requirements via the given block.
     rules = RequestRules.new
     yield rules
     
