@@ -10,9 +10,17 @@ class Dog < ActiveRecord::Base ; end
 # be invalid.
 class ValidateRequestController < ActionController::Base
   include ValidateRequest
+
+  # A cheat to get all of our actions to render nothing, so that we don't have
+  # to create views or call render for them. We can't do this with a filter,
+  # since calling render within a filter causes the action to be skipped.
+  def render_with_nothing
+    render_without_nothing :nothing => true
+  end    
+  alias_method_chain :render, :nothing
   
-  after_filter { |c, a| render :nothing => true }
-    
+  # And now, the actions that will be available to the tests...
+  
   def none
     assert_request(:get)
   end  
