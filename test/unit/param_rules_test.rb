@@ -11,6 +11,13 @@ class ParamRulesTest < Test::Unit::TestCase
     assert params.children.empty?
   end
   
+  def test_parent_and_name_must_both_be_nil_or_non_nil
+    parent = ParamRules.new
+    assert_raise(RuntimeError) { ParamRules.new(nil, parent) }
+    assert_raise(RuntimeError) { ParamRules.new("hi", nil)   }
+    ParamRules.new("hi", parent)
+  end
+  
   def test_with_simple_must_have
     add_child(ParamRules.new, true, :id)
   end
@@ -33,7 +40,7 @@ class ParamRulesTest < Test::Unit::TestCase
   end
   
   def test_block_is_not_compatible_with_multiple_names
-    assert_raise RuntimeError do
+    assert_raise(RuntimeError) do
       ParamRules.new.must_have :id, :name do |p|
         p.must_have :email
       end
@@ -51,6 +58,19 @@ class ParamRulesTest < Test::Unit::TestCase
     assert_equal 0, child2.children.length
     assert_equal 0, grandchild1.children.length
     assert_equal 0, grandchild2.children.length
+  end
+  
+  def test_canonical_name
+    root = ParamRules.new
+    child1 = add_child(root, true, :id)
+    child2 = add_child(root, false, :name)
+    grandchild1 = add_child(child1, false, :person)
+    grandchild2 = add_child(child1, false, :dog)
+    assert_equal "params",               root.canonical_name
+    assert_equal "params[:id]",          child1.canonical_name
+    assert_equal "params[:name]",        child2.canonical_name
+    assert_equal "params[:id][:person]", grandchild1.canonical_name
+    assert_equal "params[:id][:dog]",    grandchild2.canonical_name
   end
   
   private
