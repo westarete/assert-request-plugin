@@ -1,3 +1,5 @@
+* Change name to AssertRequest.
+
 * Remove support for checking params values. We've decided that this can't
   and shouldn't be done by assert_request; it should only check the structure
   of the params hash.
@@ -62,6 +64,10 @@
         p.required :employer_id
       end
     end
+
+* See if we can remove the dependency on the parent's environment.rb and 
+  boot our own test environment. Then the tests would work whether the plugin
+  is installed or not.
 
 * Improve rdoc documentation for public use. README should cover
   justification, installation, and how to handle the resulting exceptions.
