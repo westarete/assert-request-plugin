@@ -301,8 +301,6 @@ private
       
     self.send(method.to_s, url.to_s, *args)
     assert_response :success
-    self.send(method.to_s, url.to_s + "_with_block", *args2)
-    assert_response :success
   rescue ValidateRequest::RequestError => e
     flunk "Received a RequestError exception, but wasn't expecting one: <#{e}>"
   end
@@ -311,7 +309,6 @@ private
   # for the given request.
   def assert_invalid_request(method, url, *args)
     assert_raise(ValidateRequest::RequestError) { self.send(method.to_s, url.to_s, *args) }
-    assert_raise(ValidateRequest::RequestError) { self.send(method.to_s, url.to_s + "_with_block", *args) }
   end
   
 end
