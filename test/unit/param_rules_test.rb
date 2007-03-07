@@ -1,71 +1,80 @@
 require File.dirname(__FILE__) + '/../test_helper'
-require 'required_param_rules'
-require 'optional_param_rules'
 
 class ParamRulesTest < Test::Unit::TestCase
 
   include AssertRequest
   
-  # Preserve class variables, so that we can mess with them, and they'll be
-  # restored for any other tests.
-  def setup
-    @old_ignore_params = ParamRules.ignore_params.dup
+  def test_empty
+    params = ParamRules.new
+    assert_nil params.name
+    assert_nil params.parent
+    assert params.children.empty?
   end
   
-  def teardown
-    ParamRules.ignore_params = @old_ignore_params
-  end
-
-  def test_single_variable
-    rules = RequiredParamRules.new 'id' => :integer
-    assert_equal({}, rules.validate('id' => '5'))
-    assert_equal({'extra' => 'unknown'}, rules.validate('id' => '5', 'extra' => 'unknown'))
-    assert_raise(AssertRequest::RequestError) { rules.validate({'id' => 'not_an_integer'}) }
+  def test_with_simple_must_have
+    add_child(ParamRules.new, true, :id)
   end
   
-  def test_multiple_variables
-    rules = RequiredParamRules.new 'id' => :integer, 'name' => :string
-    assert_equal({}, rules.validate('id' => '5', 'name' => 'Tony'))
-    assert_equal({'extra' => 'unknown'}, rules.validate('id' => '5', 'name' => 'Tony', 'extra' => 'unknown'))
+  def test_simple_may_have
+    add_child(ParamRules.new, false, :id)
   end
   
-  def test_collection
-    requirements = {'person' => {[] => {'name' => :string}}}
-    required = RequiredParamRules.new requirements
-    optional = OptionalParamRules.new requirements
-    assert_equal({}, required.validate('person' => {'1' => {'name' => 'Tony'}}))    
-    assert_equal({}, required.validate('person' => {'1' => {'name' => 'Tony'}, '2' => {'name' => 'Bob'}}))    
-    
-    assert_equal({'person' => {'1' => {'extra' => 'unknown'}}}, required.validate('person' => {'1' => {'name' => 'Tony', 'extra' => 'unknown'}}))
-    assert_raise(AssertRequest::RequestError) { required.validate('not_a_person' => {'1' => {'name' => 'Tony'}, '2' => {'name' => 'Bob'}}) }
-    assert_raise(AssertRequest::RequestError) { required.validate('person' => {'not_an_index' => {'name' => 'Tony'}}) }
-    assert_raise(AssertRequest::RequestError) { required.validate('person' => {'1' => {'not_a_name' => 'Tony'}}) }
-    assert_raise(AssertRequest::RequestError) { required.validate('person' => {'1' => {}}) }
-    assert_raise(AssertRequest::RequestError) { required.validate('person' => {}) }
-    
-    assert_equal({}, optional.validate('person' => {'1' => {'name' => 'Tony'}}))    
-    assert_equal({}, optional.validate('person' => {'1' => {'name' => 'Tony'}, '2' => {'name' => 'Bob'}}))
-    assert_equal({}, optional.validate({}))
-    assert_raise(AssertRequest::RequestError) { assert_equal({}, required.validate({})) }
-  end
-
-  def test_bad_collection_declaration
-    requirements = {'person' => {['key_should_be_an_empty_array'] => {'name' => :string}}}
-    params       = {'person' => {['key_should_be_an_empty_array'] => {'name' => 'Tony'}}}
-    assert_raise(RuntimeError) { RequiredParamRules.new(requirements).validate(params) }
-  end
-
-  def test_standard_ignore_params
-    rules = RequiredParamRules.new 'id' => :integer    
-    assert_equal({}, rules.validate('id' => '5', 'action' => 'show', 'controller' => 'person', 'commit' => 'Save', 'method' => 'put'))
+  def test_list_of_names
+    params = ParamRules.new
+    params.must_have :id, :name, :email
+    assert_equal 3, params.children.length
+    params.children.each do |child|
+      assert_equal params, child.parent
+      assert child.children.empty?
+    end
+    [:id, :name, :email].each do |name|
+      assert params.children.detect { |c| c.name == name }
+    end
   end
   
-  def test_custom_ignore_params
-    rules  = RequiredParamRules.new 'id' => :integer    
-    params = {'id' => '5', 'extra' => 'unknown', 'action' => 'show'}
-    assert_equal({'extra' => 'unknown'}, rules.validate(params))
-    ParamRules.ignore_params << 'extra'
-    assert_equal({}, rules.validate(params))
+  def test_block_is_not_compatible_with_multiple_names
+    assert_raise RuntimeError do
+      ParamRules.new.must_have :id, :name do |p|
+        p.must_have :email
+      end
+    end
   end
-
+  
+  def test_nested
+    parent = ParamRules.new
+    child1 = add_child(parent, true, :id)
+    child2 = add_child(parent, false, :name)
+    grandchild1 = add_child(child1, false, :person)
+    grandchild2 = add_child(child1, false, :person)
+    assert_equal 2, parent.children.length
+    assert_equal 2, child1.children.length
+    assert_equal 0, child2.children.length
+    assert_equal 0, grandchild1.children.length
+    assert_equal 0, grandchild2.children.length
+  end
+  
+  private
+  
+  # Add a new child with the given name and required status to the given
+  # parent.
+  def add_child(parent, required, name)
+    old_num_children = parent.children.length
+    if required
+      parent.must_have name
+    else
+      parent.may_have name
+    end
+    assert_equal old_num_children+1, parent.children.length
+    # Here we presume that the child got added to the end of the children.
+    child = parent.children.last
+    assert_equal name, child.name
+    assert_equal parent, child.parent
+    assert child.children.empty?
+    if required
+      assert child.required?    
+    else
+      assert ! child.required?
+    end
+    child
+  end
 end

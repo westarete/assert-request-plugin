@@ -6,8 +6,6 @@ require 'request_rules'
 require 'method_rules'
 require 'protocol_rules'
 require 'param_rules'
-require 'required_param_rules'
-require 'optional_param_rules'
 require 'request_error'
 
 module AssertRequest

@@ -1,5 +1,3 @@
-* Change name to AssertRequest.
-
 * Remove support for checking params values. We've decided that this can't
   and shouldn't be done by assert_request; it should only check the structure
   of the params hash.
