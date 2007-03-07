@@ -1,8 +1,67 @@
-* Can't use types on ActiveRecord rules, since this should be handled by the
-  validation. If someone puts a non-number into a text field for an integer,
-  we don't want to raise and exception and give a 404. We could just have all
-  activerecord columns set to text, but then this prevents checking foreign
-  id fields. Maybe those foreign id fields should still be integer?
+* Remove support for checking params values. We've decided that this can't
+  and shouldn't be done by assert_request; it should only check the structure
+  of the params hash.
+  
+* Replace nested hashes declaration with one that uses nested procs. This will
+  be much more precise. For example:
+  
+    assert_request do |r|
+      r.required :route_figure do |rf|
+        rf.required :age
+        rf.required :dog => Dog, :except => :asdf
+        rf.required :cat => Cat, :except => :spayed
+        rf.optional :orientation => Orientation
+      end
+    end
+    
+* Add support for declaring lists of allowed params, to replace hashes. e.g.:
+
+    assert_request { |r| r.required :name, :age, :email }
+    
+* Support hashes at the end of lists of params, e.g.:
+
+    assert_request { |r| r.required :name, :age, :dog => Dog }
+    
+* When an ActiveRecord class is specified in a param list, presume that the
+  params key is the lowercase version of the class name. For example:
+  
+    assert_request { |r| r.required Person }
+    
+  is equivalent to:
+  
+    assert_request { |r| r.required :person => Person }  
+    
+* Add a new method assert_request_contains, which does not complain if there
+  are extra items in the params hash. This allows you to specify a minimum
+  requirement for the params without having to specify all the optional 
+  elements. For example:
+  
+    assert_request_contains { |r| r.required :id }
+    
+  Will not complain if the params hash is {"id"=>"4","name"=>"Johnny"}, but
+  it will complain if the "id" element is missing.
+  
+* Add a new method assert_params_contains, which is shorthand for 
+  assert_request_contains with a required clause. For example:
+  
+    assert_params_contains :id
+  
+  is just shorthand for:
+  
+    assert_request_contains { |r| r.required :id }
+
+* Allow string-based declarations for nested elements. This is more succinct
+  than block notation when the number of nested params are small. For example:
+
+    assert_params_contains "[:person][:employer_id]"
+    
+  would be equivalent to:
+  
+    assert_request_contains do |r|
+      r.required :person do |p|
+        p.required :employer_id
+      end
+    end
 
 * Improve rdoc documentation for public use. README should cover
   justification, installation, and how to handle the resulting exceptions.
@@ -15,11 +74,6 @@
 
 * I think that forms using alternate methods in forms (such as :method =>
   :put) still show up as request.method == :post.
-
-* (Maybe) Support for regular expressions, e.g. :email => /\w+@\w+/ . Not
-  useful for user input (use validation instead), but might be handy for when
-  accepting action-to-action arguments (e.g. hidden form fields) that
-  shouldn't be messed with.
 
 * Verify that RESTful aspects (the stuff after the semicolon) are supported
   properly. This should be handled at the routing level though, so it should
