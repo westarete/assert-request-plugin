@@ -1,27 +1,3 @@
-* Remove support for checking params values. We've decided that this can't
-  and shouldn't be done by assert_request; it should only check the structure
-  of the params hash.
-
-* Replace all hash declarations with ones that uses nested procs. This will be
-  much more precise. Introduce a "params" method on request, used to build the
-  params requirement. This is more descriptive, and makes implementation
-  easier too. Finally, replace "required" with "must_have", and "optional"
-  with "may_have". Example:
-
-    assert_request do |r|
-      r.method :post
-      r.params.must_have :id
-      r.params.must_have :person do |person|
-        person.must_have :name
-        person.may_have  :orientation
-      end
-    end
-    
-* Add support for declaring lists of allowed params in one statement (not
-  compatible with block notation). Example:
-
-    assert_request { |r| r.params.must_have :name, :age, :email }
-    
 * Support ActiveRecord params again via is_a. Example:
 
     assert_request do |r| 
