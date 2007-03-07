@@ -87,13 +87,19 @@ class ParamRulesTest < Test::Unit::TestCase
     root.must_have :id
     assert_not_raise(AssertRequest::RequestError) { root.validate({"id" => 4}) }
     assert_raise(AssertRequest::RequestError) { root.validate({"not_id" => 4}) }
+    assert_raise(AssertRequest::RequestError) { root.validate({}) }
+    assert_raise(AssertRequest::RequestError) { root.validate({"id" => 4, "extra" => 5}) }
+    assert_raise(AssertRequest::RequestError) { root.validate({"id" => {"not expecting nested" => 5}}) }
   end
   
   def test_validate_one_optional_param
     root = ParamRules.new
     root.may_have :id
     assert_not_raise(AssertRequest::RequestError) { root.validate({"id" => 4}) }
-    assert_not_raise(AssertRequest::RequestError) { root.validate({"not_id" => 4}) }
+    assert_not_raise(AssertRequest::RequestError) { root.validate({}) }
+    assert_raise(AssertRequest::RequestError) { root.validate({"not_id" => 4}) }
+    assert_raise(AssertRequest::RequestError) { root.validate({"id" => 4, "extra" => 5}) }
+    assert_raise(AssertRequest::RequestError) { root.validate({"id" => {"not expecting nested" => 5}}) }
   end
 
   def test_validate_multiple_params
@@ -103,9 +109,11 @@ class ParamRulesTest < Test::Unit::TestCase
     assert_raise(AssertRequest::RequestError) { root.validate({"id" => 4}) }
     assert_raise(AssertRequest::RequestError) { root.validate({"name" => "john"}) }
     assert_raise(AssertRequest::RequestError) { root.validate({}) }
+    assert_raise(AssertRequest::RequestError) { root.validate({"id" => 4, "name" => "john", "extra" => "hi"}) }
+    assert_raise(AssertRequest::RequestError) { root.validate({"id" => {"not expecting nested" => 5}, "name" => "john"}) }
   end
   
-  def test_validate_nested_params
+  def test_validate_nested_required_params
     root = ParamRules.new
     root.must_have :id
     root.must_have :person do |person|
@@ -115,12 +123,38 @@ class ParamRulesTest < Test::Unit::TestCase
       person.must_have :age
     end
     assert_not_raise(AssertRequest::RequestError) { root.validate({"id" => 4, "person" => {"name" => {"first" => "john"}, "age" => 12}}) }
+    assert_raise(AssertRequest::RequestError) { root.validate({"id" => 4, "person" => {"name" => {"first" => "john", "extra" => "hi"}, "age" => 12}}) }
     assert_raise(AssertRequest::RequestError)     { root.validate({"id" => 4, "person" => {"name" => {"not_first" => "john"}, "age" => 12}}) }
     assert_raise(AssertRequest::RequestError)     { root.validate({"id" => 4, "person" => {"name" => {"first" => "john"}, "not_age" => 12}}) }
     assert_raise(AssertRequest::RequestError)     { root.validate({"id" => 4, "person" => {"name" => {"first" => "john"}}}) }
+    assert_raise(AssertRequest::RequestError)     { root.validate({"id" => 4, "person" => {"name" => "john"}}) }
     assert_raise(AssertRequest::RequestError)     { root.validate({"id" => 4, "person" => {"not_name" => {"first" => "john"}, "age" => 12}}) }
   end    
   
+  def test_validate_nested_mixed_params
+    root = ParamRules.new
+    root.must_have :id
+    root.must_have :person do |person|
+      person.may_have :name do |name|
+        name.must_have :first
+      end
+      person.may_have :age
+    end
+    # All elements, both required and optional
+    assert_not_raise(AssertRequest::RequestError) { root.validate({"id" => 4, "person" => {"name" => {"first" => "john"}, "age" => 12}}) }
+    # Extra unrecognized element
+    assert_raise(AssertRequest::RequestError) { root.validate({"id" => 4, "person" => {"name" => {"first" => "john", "extra" => "hi"}, "age" => 12}}) }
+    # Don't necessarily need age.
+    assert_not_raise(AssertRequest::RequestError) { root.validate({"id" => 4, "person" => {"name" => {"first" => "john"}}}) }
+    # Don't necessarily need name or age (even though a params value of an empty hash woudn't happen in practice).
+    assert_not_raise(AssertRequest::RequestError) { root.validate({"id" => 4, "person" => {}}) }
+    # But person must be a hash, since it's nested
+    assert_raise(AssertRequest::RequestError) { root.validate({"id" => 4, "person" => "john"}) }
+    # If you have name, you must have first.
+    assert_raise(AssertRequest::RequestError) { root.validate({"id" => 4, "person" => {"name" => {}}}) }
+    assert_raise(AssertRequest::RequestError) { root.validate({"id" => 4, "person" => {"name" => "john"}}) }
+  end    
+
   private
   
   # Add a new child with the given name and required status to the given

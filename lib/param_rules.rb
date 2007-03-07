@@ -36,18 +36,12 @@ module AssertRequest
     end
     
     # Validate the given parameters against our requirements, raising 
-    # exceptions for bad parameters, and returning a hash of any unrecognized
-    # params.
+    # exceptions for missing or unexpected parameters.
     def validate(params)
-      children.each do |child|
-        name = child.name.to_s
-        if params.has_key?(name)
-          if params[name].is_a?(Hash)
-            child.validate(params[name])
-          end
-        elsif child.required?
-          raise RequestError, "missing #{child.canonical_name}"
-        end
+      recognized_keys = validate_children(params)
+      unexpected_keys = params.keys - recognized_keys
+      if !unexpected_keys.empty?
+        raise RequestError, "did not expect #{canonical_name}[:#{unexpected_keys.first}]"
       end
     end
 
@@ -57,13 +51,45 @@ module AssertRequest
     # child is required (must_have) or not (may_have).
     def add_child(required, *args)
       if block_given? and args.length != 1
-        raise "you must supply a parameter with a block"
+        raise "you must supply exactly one parameter name with a block"
       end
       args.each do |arg|
         child = ParamRules.new(arg, self, required)
         yield child if block_given?
         @children << child
       end          
+    end
+   
+    # Validate our children against the given params, looking for missing 
+    # required elements. Returns a list of the keys that we were able to
+    # recognize.
+    def validate_children(params)
+      recognized_keys = []
+      children.each do |child|
+        name = child.name.to_s
+        if params.has_key?(name)
+          recognized_keys << name
+          validate_child(child, params[name])
+        elsif child.required?
+          raise RequestError, "request did not include #{child.canonical_name}"
+        end
+      end
+      recognized_keys
+    end
+    
+    # Validate this child against its matching value. 
+    def validate_child(child, value)
+      if child.children.empty?
+        if value.is_a?(Hash)
+          raise RequestError, (child.canonical_name + " is a hash, but wasn't expecting it")
+        end
+      else
+        if value.is_a?(Hash)
+          child.validate(value)
+        else
+          raise RequestError, "expected #{child.canonical_name} to be a nested hash"
+        end
+      end      
     end
     
   end
