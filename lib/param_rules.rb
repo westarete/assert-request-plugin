@@ -9,7 +9,7 @@ module AssertRequest
     # The set of params that we should ignore by default. You could modify 
     # this in your environment.rb if its default settings don't suit your 
     # appliction. 
-    @@ignore_params = %w( action controller commit method )
+    @@ignore_params = %w( action controller commit _method )
 
     # The set of columns in the ActiveRecord model that we should ignore by
     # default. You could modify this in your environment.rb if its default 
