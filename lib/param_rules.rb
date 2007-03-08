@@ -21,14 +21,21 @@ module AssertRequest
       if (name.nil? && !parent.nil?) || (parent.nil? && !name.nil?)
         raise "parent and name must both be either nil or not nil"
       end
-      # We store names as strings, since that's what the params hash uses.
-      @name = name.nil? ? nil : name.to_s
       @parent = parent
       @required = required
       @children = []
       # Whether to raise an exception when we encounter unexpected params 
       # during validation.
       @ignore_unexpected = ignore_unexpected
+      if name.nil?
+        @name = nil
+      elsif is_model?(name)
+        klass = name
+        @name = klass.to_s.underscore
+        is_a klass
+      else
+        @name = name.to_s
+      end
     end
     
     def required?

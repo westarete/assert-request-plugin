@@ -260,6 +260,44 @@ class ParamRulesTest < Test::Unit::TestCase
     assert_raise(RequestError)     { root.validate({"id" => 4, "luther" => {"name" => "Luther", "breed" => "Bouvier", "not_age_in_years" => 12}}) }
     assert_not_raise(RequestError) { root.validate({"id" => 4, "luther" => {"name" => "Luther", "breed" => "Bouvier", "age_in_years" => 12, "extra" => "ok"}}) }
   end
+  
+  def test_must_have_is_a_shortcut
+    root = ParamRules.new
+    root.must_have :id, Dog
+    assert_not_raise(RequestError) { root.validate({"id" => 4, "dog" => {"name" => "Luther", "breed" => "Bouvier", "age_in_years" => 12}}) }
+    assert_raise(RequestError) { root.validate({"id" => 4, "dog" => {"name" => "Luther", "breed" => "Bouvier", "age_in_years" => 12, "extra" => "bad"}}) }
+    assert_raise(RequestError) { root.validate({"id" => 4, "dog" => {"name" => "Luther", "breed" => "Bouvier"}}) }
+    assert_raise(RequestError) { root.validate({"id" => 4, "dog" => {"name" => "Luther", "breed" => "Bouvier", "age_in_years" => 12}, "extra" => "bad"}) }
+    assert_raise(RequestError) { root.validate({"id" => 4}) }
+    assert_raise(RequestError) { root.validate({"id" => 4, "dog" => {}}) }
+    assert_raise(RequestError) { root.validate({"id" => 4, "dog" => "empty"}) }
+  end
+
+  def test_may_have_is_a_shortcut
+    root = ParamRules.new
+    root.must_have :id
+    root.may_have Dog
+    assert_not_raise(RequestError) { root.validate({"id" => 4, "dog" => {"name" => "Luther", "breed" => "Bouvier", "age_in_years" => 12}}) }
+    assert_not_raise(RequestError) { root.validate({"id" => 4}) }
+    assert_raise(RequestError) { root.validate({"id" => 4, "dog" => {"name" => "Luther", "breed" => "Bouvier", "age_in_years" => 12, "extra" => "bad"}}) }
+    assert_raise(RequestError) { root.validate({"id" => 4, "dog" => {"name" => "Luther", "breed" => "Bouvier"}}) }
+    assert_raise(RequestError) { root.validate({"id" => 4, "dog" => {"name" => "Luther", "breed" => "Bouvier", "age_in_years" => 12}, "extra" => "bad"}) }
+    assert_raise(RequestError) { root.validate({"id" => 4, "dog" => {}}) }
+    assert_raise(RequestError) { root.validate({"id" => 4, "dog" => "empty"}) }
+  end
+  
+  def test_must_not_have_with_shortcut
+    root = ParamRules.new
+    root.must_have :id
+    root.must_have Dog do |dog| 
+      dog.must_not_have :age_in_years
+    end
+    assert_not_raise(RequestError) { root.validate({"id" => 4, "dog" => {"name" => "Luther", "breed" => "Bouvier"}}) }
+    assert_raise(RequestError)     { root.validate({"id" => 4, "dog" => {"name" => "Luther", "breed" => "Bouvier", "age_in_years" => 12}}) }
+    assert_raise(RequestError)     { root.validate({"id" => 4, "dog" => {"name" => "Luther", "breed" => "Bouvier", "something_else" => 12}}) }
+  end
+
+  
 
   private
   

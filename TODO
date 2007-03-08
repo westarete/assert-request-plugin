@@ -1,17 +1,3 @@
-* Syntactic sugar: Provide a shortcut where if the parameter is an
-  ActiveRecord class, then the parameter name is presumed to be the lowercase
-  version of the class name. Example:
-
-    assert_request do |r| 
-      r.params.must_have Person
-    end
-
-  is equivalent to:
-
-    assert_request do |r| 
-      r.params.must_have :person { |p| p.is_a Person }
-    end
-
 * (Undecided) Syntactic sugar: Support string-based declarations for nested
   elements. This is more succinct than block notation when the number of
   nested params are small. Example:
