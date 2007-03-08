@@ -36,7 +36,7 @@ class ParamRulesTest < Test::Unit::TestCase
       assert child.children.empty?
     end
     [:id, :name, :email].each do |name|
-      assert params.children.detect { |c| c.name == name }
+      assert params.children.detect { |c| c.name == name.to_s }
     end
   end
   
@@ -57,17 +57,17 @@ class ParamRulesTest < Test::Unit::TestCase
       person.may_have(:dog) { |d| d.must_have :id }
     end
     assert_equal 2, root.children.length
-    assert_equal :id,     root.children.first.name
+    assert_equal "id", root.children.first.name
     person = root.children.last
-    assert_equal :person, person.name
+    assert_equal "person", person.name
     assert_equal 4, person.children.length
-    assert_equal :name, person.children[0].name
-    assert_equal :age, person.children[1].name
-    assert_equal :height, person.children[2].name
-    assert_equal :dog, person.children[3].name
+    assert_equal "name", person.children[0].name
+    assert_equal "age", person.children[1].name
+    assert_equal "height", person.children[2].name
+    assert_equal "dog", person.children[3].name
     dog = person.children[3]
     assert_equal 1, dog.children.length
-    assert_equal :id, dog.children.first.name
+    assert_equal "id", dog.children.first.name
   end
   
   def test_canonical_name
@@ -215,6 +215,32 @@ class ParamRulesTest < Test::Unit::TestCase
     root.validate(params)
     assert_equal original_params, params
   end
+  
+  def test_must_not_have
+    root = ParamRules.new
+    root.must_have :id
+    root.must_have :luther do |luther| 
+      luther.is_a Dog 
+      luther.must_not_have :age_in_years
+    end
+    assert_not_raise(RequestError) { root.validate({"id" => 4, "luther" => {"name" => "Luther", "breed" => "Bouvier"}}) }
+    assert_raise(RequestError) { root.validate({"id" => 4, "luther" => {"name" => "Luther", "breed" => "Bouvier", "age_in_years" => 12}}) }
+    assert_raise(RequestError) { root.validate({"id" => 4, "luther" => {"name" => "Luther", "breed" => "Bouvier", "something_else" => 12}}) }
+  end
+
+  def test_must_not_have_multiple
+    root = ParamRules.new
+    root.must_have :id
+    root.must_have :luther do |luther| 
+      luther.is_a Dog 
+      luther.must_not_have :age_in_years, :breed
+    end
+    assert_not_raise(RequestError) { root.validate({"id" => 4, "luther" => {"name" => "Luther"}}) }
+    assert_raise(RequestError) { root.validate({"id" => 4, "luther" => {"name" => "Luther", "age_in_years" => 12}}) }
+    assert_raise(RequestError) { root.validate({"id" => 4, "luther" => {"name" => "Luther", "breed" => "Bouvier"}}) }
+    assert_raise(RequestError) { root.validate({"id" => 4, "luther" => {"name" => "Luther", "breed" => "Bouvier", "age_in_years" => 12}}) }
+    assert_raise(RequestError) { root.validate({"id" => 4, "luther" => {"name" => "Luther", "breed" => "Bouvier", "something_else" => 12}}) }
+  end
 
   private
   
@@ -230,7 +256,7 @@ class ParamRulesTest < Test::Unit::TestCase
     assert_equal old_num_children+1, parent.children.length
     # Here we presume that the child got added to the end of the children.
     child = parent.children.last
-    assert_equal name, child.name
+    assert_equal name.to_s, child.name
     assert_equal parent, child.parent
     assert child.children.empty?
     if required

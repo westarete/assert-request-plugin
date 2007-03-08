@@ -20,7 +20,8 @@ module AssertRequest
       if (name.nil? && !parent.nil?) || (parent.nil? && !name.nil?)
         raise "parent and name must both be either nil or not nil"
       end
-      @name = name
+      # We store names as strings, since that's what the params hash uses.
+      @name = name.nil? ? nil : name.to_s
       @parent = parent
       @required = required
       @children = []
@@ -36,6 +37,10 @@ module AssertRequest
     
     def may_have(*args, &block)
       add_child(false, *args, &block)
+    end
+    
+    def must_not_have(*args)
+      remove_child(*args)
     end
     
     def is_a(klass)
@@ -83,14 +88,21 @@ module AssertRequest
     
     # Create a new child. The first argument is boolean and says whether the
     # child is required (must_have) or not (may_have).
-    def add_child(required, *args)
-      if block_given? && args.length != 1
+    def add_child(required, *names)
+      if block_given? && names.length != 1
         raise "you must supply exactly one parameter name with a block"
       end
-      args.each do |arg|
-        child = ParamRules.new(arg, self, required)
+      names.each do |name|
+        child = ParamRules.new(name, self, required)
         yield child if block_given?
         @children << child
+      end          
+    end
+   
+    # Remove the given children. 
+    def remove_child(*names)
+      names.each do |name|
+        children.delete_if { |child| child.name == name.to_s }
       end          
     end
    
@@ -100,10 +112,9 @@ module AssertRequest
     def validate_children(params)
       recognized_keys = []
       children.each do |child|
-        name = child.name.to_s
-        if params.has_key?(name)
-          recognized_keys << name
-          validate_child(child, params[name])
+        if params.has_key?(child.name)
+          recognized_keys << child.name
+          validate_child(child, params[child.name])
         elsif child.required?
           raise RequestError, "request did not include #{child.canonical_name}"
         end
