@@ -53,6 +53,8 @@
   
     assert_params_must_have :fido { |f| f.must_have :name }
 
+* How to handle collections? OK with using plain ruby? or add extra support?
+
 * See if we can remove the dependency on the parent's environment.rb and 
   boot our own test environment. Then the tests would work whether the plugin
   is installed or not.
@@ -70,6 +72,9 @@
 
 * I think that forms using alternate methods in forms (such as :method =>
   :put) still show up as request.method == :post.
+  
+* Find out if we need to ignore _method in the params, or if it's stripped 
+  before we even see it.
 
 * Verify that RESTful aspects (the stuff after the semicolon) are supported
   properly. This should be handled at the routing level though, so it should
