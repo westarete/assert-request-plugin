@@ -199,6 +199,21 @@ class ParamRulesTest < Test::Unit::TestCase
     assert_raise(RequestError) { root.validate({"id" => 4, "dog" => {}}) }
     assert_raise(RequestError) { root.validate({"id" => 4, "dog" => "empty"}) }
   end
+  
+  def test_validation_should_not_alter_params_hash
+    root = ParamRules.new
+    root.must_have :id
+    root.must_have :person do |person|
+      person.may_have :name do |name|
+        name.must_have :first
+      end
+      person.may_have :age
+    end
+    params = {"id" => 4, "person" => {"name" => {"first" => "john"}, "age" => 12}}
+    original_params = params.dup
+    root.validate(params)
+    assert_equal original_params, params
+  end
 
   private
   
