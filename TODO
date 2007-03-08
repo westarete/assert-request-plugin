@@ -5,33 +5,12 @@
     assert_request do |r| 
       r.params.must_have Person
     end
-    
+
   is equivalent to:
-  
+
     assert_request do |r| 
       r.params.must_have :person { |p| p.is_a Person }
     end
-    
-* Add a new method assert_params_must_have, which only checks the params hash
-  for the given elements. Ignores any other elements in params. This allows
-  you to specify a minimum requirement for the params without having to
-  specify all the optional elements. Example:
-
-    assert_params_must_have :id, :name
-    
-  In a way, this is similar to:
-  
-    assert_request { |r| r.params.must_have :id, :name }
-
-  however the latter will complain if there are any elements other than :id
-  and :name in the params hash, whereas the previous will not.
-  
-* Add block support for assert_params_must_have, to allow nested elements and
-  ActiveRecord types. Example:
-  
-    assert_params_must_have Dog
-    
-    assert_params_must_have :fido { |f| f.must_have :name }
 
 * (Undecided) Syntactic sugar: Support string-based declarations for nested
   elements. This is more succinct than block notation when the number of

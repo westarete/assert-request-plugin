@@ -26,5 +26,28 @@ module AssertRequest
     logger.error "Bad request: #{$!}" 
     raise
   end
+
+  # Only checks the params hash for the given elements. Ignores any other 
+  # elements in params. This allows you to specify a minimum requirement for 
+  # the params without having to specify all the optional elements. Example:
+  # 
+  #   assert_params_must_have :id, :name
+  # 
+  # In a way, this is similar to:
+  # 
+  #   assert_request { |r| r.params.must_have :id, :name }
+  # 
+  # however the latter will complain if there are any elements other than :id
+  # and :name in the params hash, whereas the previous will not.
+  #   
+  def assert_params_must_have(*args, &block)
+    param_rules = ParamRules.new(nil, nil, true, true)
+    param_rules.must_have(*args, &block)
+    param_rules.validate(params)
+  rescue RequestError
+    # Temporarily intercept the exception here so that we can log the details.
+    logger.error "Bad request: #{$!}" 
+    raise
+  end    
     
 end

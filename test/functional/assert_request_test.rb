@@ -117,6 +117,52 @@ class AssertRequestControllerTest < Test::Unit::TestCase
     AssertRequest::ParamRules.ignore_params = old_ignore
   end
   
+  def test_params_must_have_id
+    # Shouldn't care about anything except the fact that we have "id" at the
+    # top level.
+    assert_valid_request :get, :params_must_have_id, "id" => '3'
+    assert_valid_request :get, :params_must_have_id, "id" => '3', "name" => "bob"
+    assert_valid_request :post, :params_must_have_id, "id" => '3', "name" => "bob"
+    @request.env['HTTPS'] = 'on'
+    assert @request.ssl?
+    assert_valid_request :get, :params_must_have_id, "id" => '3'
+    @request.env['HTTPS'] = 'off'
+    assert_invalid_request :get, :params_must_have_id, "not_id" => '3'
+    assert_invalid_request :get, :params_must_have_id, "person" => {"id" => '3'}
+    assert_invalid_request :get, :params_must_have_id
+  end
+  
+  def test_params_must_have_id_and_name
+    # Shouldn't care about anything except the fact that we have "id" and 
+    # "name" at the top level.
+    assert_invalid_request :get, :params_must_have_id_and_name, "id" => '3'
+    assert_valid_request :get, :params_must_have_id_and_name, "id" => '3', "name" => "bob"
+    assert_valid_request :post, :params_must_have_id_and_name, "id" => '3', "name" => "bob", "extra" => "ok"
+    @request.env['HTTPS'] = 'on'
+    assert @request.ssl?
+    assert_valid_request :get, :params_must_have_id_and_name, "id" => '3', "name" => "bob"
+    @request.env['HTTPS'] = 'off'
+    assert_invalid_request :get, :params_must_have_id_and_name, "not_id" => '3'
+    assert_invalid_request :get, :params_must_have_id_and_name, "person" => {"id" => '3'}, "name" => "bob"
+    assert_invalid_request :get, :params_must_have_id_and_name
+  end
+  
+  def test_params_must_have_dog_name
+    # Shouldn't care about anything except the fact that we have "dog", which
+    # contains "name".
+    assert_invalid_request :get, :params_must_have_dog_name, "dog" => '3'
+    assert_valid_request :get, :params_must_have_dog_name, "dog" => {"name" => "bob"}
+    assert_valid_request :post, :params_must_have_dog_name, "dog" => {"name" => "bob"}, "extra" => "ok"
+    assert_valid_request :post, :params_must_have_dog_name, "dog" => {"name" => "bob", "extra" => "ok"}
+    @request.env['HTTPS'] = 'on'
+    assert @request.ssl?
+    assert_valid_request :get, :params_must_have_dog_name, "dog" => {"name" => "bob"}
+    @request.env['HTTPS'] = 'off'
+    assert_invalid_request :get, :params_must_have_dog_name, "not_dog" => {"name" => "bob"}
+    assert_invalid_request :get, :params_must_have_dog_name, "dog" => {"not_name" => "bob"}
+    assert_invalid_request :get, :params_must_have_dog_name
+  end
+  
 private
 
   # Works like "get" or "post", only it also asserts that the request was 

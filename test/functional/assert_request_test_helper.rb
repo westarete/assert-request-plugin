@@ -91,4 +91,16 @@ class AssertRequestController < ActionController::Base
     end
   end
   
+  def params_must_have_id
+    assert_params_must_have :id
+  end
+  
+  def params_must_have_id_and_name
+    assert_params_must_have :id, :name
+  end
+
+  def params_must_have_dog_name
+    assert_params_must_have(:dog) { |dog| dog.must_have :name }
+  end
+  
 end
