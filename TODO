@@ -55,10 +55,6 @@
 
 * How to handle collections? OK with using plain ruby? or add extra support?
 
-* See if we can remove the dependency on the parent's environment.rb and 
-  boot our own test environment. Then the tests would work whether the plugin
-  is installed or not.
-
 * Update scaffolding to include the appropriate assert_request calls.
 
 * Improve rdoc documentation for public use. README should cover
