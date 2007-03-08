@@ -85,32 +85,32 @@ class ParamRulesTest < Test::Unit::TestCase
   def test_validate_one_required_param
     root = ParamRules.new
     root.must_have :id
-    assert_not_raise(AssertRequest::RequestError) { root.validate({"id" => 4}) }
-    assert_raise(AssertRequest::RequestError) { root.validate({"not_id" => 4}) }
-    assert_raise(AssertRequest::RequestError) { root.validate({}) }
-    assert_raise(AssertRequest::RequestError) { root.validate({"id" => 4, "extra" => 5}) }
-    assert_raise(AssertRequest::RequestError) { root.validate({"id" => {"not expecting nested" => 5}}) }
+    assert_not_raise(RequestError) { root.validate({"id" => 4}) }
+    assert_raise(RequestError) { root.validate({"not_id" => 4}) }
+    assert_raise(RequestError) { root.validate({}) }
+    assert_raise(RequestError) { root.validate({"id" => 4, "extra" => 5}) }
+    assert_raise(RequestError) { root.validate({"id" => {"not expecting nested" => 5}}) }
   end
   
   def test_validate_one_optional_param
     root = ParamRules.new
     root.may_have :id
-    assert_not_raise(AssertRequest::RequestError) { root.validate({"id" => 4}) }
-    assert_not_raise(AssertRequest::RequestError) { root.validate({}) }
-    assert_raise(AssertRequest::RequestError) { root.validate({"not_id" => 4}) }
-    assert_raise(AssertRequest::RequestError) { root.validate({"id" => 4, "extra" => 5}) }
-    assert_raise(AssertRequest::RequestError) { root.validate({"id" => {"not expecting nested" => 5}}) }
+    assert_not_raise(RequestError) { root.validate({"id" => 4}) }
+    assert_not_raise(RequestError) { root.validate({}) }
+    assert_raise(RequestError) { root.validate({"not_id" => 4}) }
+    assert_raise(RequestError) { root.validate({"id" => 4, "extra" => 5}) }
+    assert_raise(RequestError) { root.validate({"id" => {"not expecting nested" => 5}}) }
   end
 
   def test_validate_multiple_params
     root = ParamRules.new
     root.must_have :id, :name
-    assert_not_raise(AssertRequest::RequestError) { root.validate({"id" => 4, "name" => "john"}) }
-    assert_raise(AssertRequest::RequestError) { root.validate({"id" => 4}) }
-    assert_raise(AssertRequest::RequestError) { root.validate({"name" => "john"}) }
-    assert_raise(AssertRequest::RequestError) { root.validate({}) }
-    assert_raise(AssertRequest::RequestError) { root.validate({"id" => 4, "name" => "john", "extra" => "hi"}) }
-    assert_raise(AssertRequest::RequestError) { root.validate({"id" => {"not expecting nested" => 5}, "name" => "john"}) }
+    assert_not_raise(RequestError) { root.validate({"id" => 4, "name" => "john"}) }
+    assert_raise(RequestError) { root.validate({"id" => 4}) }
+    assert_raise(RequestError) { root.validate({"name" => "john"}) }
+    assert_raise(RequestError) { root.validate({}) }
+    assert_raise(RequestError) { root.validate({"id" => 4, "name" => "john", "extra" => "hi"}) }
+    assert_raise(RequestError) { root.validate({"id" => {"not expecting nested" => 5}, "name" => "john"}) }
   end
   
   def test_validate_nested_required_params
@@ -122,13 +122,13 @@ class ParamRulesTest < Test::Unit::TestCase
       end
       person.must_have :age
     end
-    assert_not_raise(AssertRequest::RequestError) { root.validate({"id" => 4, "person" => {"name" => {"first" => "john"}, "age" => 12}}) }
-    assert_raise(AssertRequest::RequestError) { root.validate({"id" => 4, "person" => {"name" => {"first" => "john", "extra" => "hi"}, "age" => 12}}) }
-    assert_raise(AssertRequest::RequestError)     { root.validate({"id" => 4, "person" => {"name" => {"not_first" => "john"}, "age" => 12}}) }
-    assert_raise(AssertRequest::RequestError)     { root.validate({"id" => 4, "person" => {"name" => {"first" => "john"}, "not_age" => 12}}) }
-    assert_raise(AssertRequest::RequestError)     { root.validate({"id" => 4, "person" => {"name" => {"first" => "john"}}}) }
-    assert_raise(AssertRequest::RequestError)     { root.validate({"id" => 4, "person" => {"name" => "john"}}) }
-    assert_raise(AssertRequest::RequestError)     { root.validate({"id" => 4, "person" => {"not_name" => {"first" => "john"}, "age" => 12}}) }
+    assert_not_raise(RequestError) { root.validate({"id" => 4, "person" => {"name" => {"first" => "john"}, "age" => 12}}) }
+    assert_raise(RequestError) { root.validate({"id" => 4, "person" => {"name" => {"first" => "john", "extra" => "hi"}, "age" => 12}}) }
+    assert_raise(RequestError)     { root.validate({"id" => 4, "person" => {"name" => {"not_first" => "john"}, "age" => 12}}) }
+    assert_raise(RequestError)     { root.validate({"id" => 4, "person" => {"name" => {"first" => "john"}, "not_age" => 12}}) }
+    assert_raise(RequestError)     { root.validate({"id" => 4, "person" => {"name" => {"first" => "john"}}}) }
+    assert_raise(RequestError)     { root.validate({"id" => 4, "person" => {"name" => "john"}}) }
+    assert_raise(RequestError)     { root.validate({"id" => 4, "person" => {"not_name" => {"first" => "john"}, "age" => 12}}) }
   end    
   
   def test_validate_nested_mixed_params
@@ -141,19 +141,64 @@ class ParamRulesTest < Test::Unit::TestCase
       person.may_have :age
     end
     # All elements, both required and optional
-    assert_not_raise(AssertRequest::RequestError) { root.validate({"id" => 4, "person" => {"name" => {"first" => "john"}, "age" => 12}}) }
+    assert_not_raise(RequestError) { root.validate({"id" => 4, "person" => {"name" => {"first" => "john"}, "age" => 12}}) }
     # Extra unrecognized element
-    assert_raise(AssertRequest::RequestError) { root.validate({"id" => 4, "person" => {"name" => {"first" => "john", "extra" => "hi"}, "age" => 12}}) }
+    assert_raise(RequestError) { root.validate({"id" => 4, "person" => {"name" => {"first" => "john", "extra" => "hi"}, "age" => 12}}) }
     # Don't necessarily need age.
-    assert_not_raise(AssertRequest::RequestError) { root.validate({"id" => 4, "person" => {"name" => {"first" => "john"}}}) }
+    assert_not_raise(RequestError) { root.validate({"id" => 4, "person" => {"name" => {"first" => "john"}}}) }
     # Don't necessarily need name or age (even though a params value of an empty hash woudn't happen in practice).
-    assert_not_raise(AssertRequest::RequestError) { root.validate({"id" => 4, "person" => {}}) }
+    assert_not_raise(RequestError) { root.validate({"id" => 4, "person" => {}}) }
     # But person must be a hash, since it's nested
-    assert_raise(AssertRequest::RequestError) { root.validate({"id" => 4, "person" => "john"}) }
+    assert_raise(RequestError) { root.validate({"id" => 4, "person" => "john"}) }
     # If you have name, you must have first.
-    assert_raise(AssertRequest::RequestError) { root.validate({"id" => 4, "person" => {"name" => {}}}) }
-    assert_raise(AssertRequest::RequestError) { root.validate({"id" => 4, "person" => {"name" => "john"}}) }
+    assert_raise(RequestError) { root.validate({"id" => 4, "person" => {"name" => {}}}) }
+    assert_raise(RequestError) { root.validate({"id" => 4, "person" => {"name" => "john"}}) }
   end    
+  
+  def test_should_ignore_certain_common_params
+    root = ParamRules.new
+    root.must_have :id
+    # Make sure they're ignored at the top level
+    assert_not_raise(RequestError) { root.validate({"id" => 4}) }
+    assert_not_raise(RequestError) { root.validate({"id" => 4, "action" => "show"}) }
+    assert_not_raise(RequestError) { root.validate({"id" => 4, "controller" => "person", "action" => "show"}) }
+    # Make sure they don't get ignored at a deeper level.
+    root.may_have(:person) { |p| p.may_have :name }
+    assert_not_raise(RequestError) { root.validate({"id" => 4, "person" => {"name" => "john"}}) }
+    assert_raise(RequestError) { root.validate({"id" => 4, "person" => {"name" => "john", "action" => "show"}}) }
+  end
+  
+  def test_is_a_should_only_be_used_with_models
+    assert_raise(RuntimeError) { ParamRules.new.must_have(:bob) { |b| b.is_a "string, not an AR class" } }
+    assert_raise(RuntimeError) { ParamRules.new.must_have(:bob) { |b| b.is_a Fixnum } }
+    assert_not_raise(RuntimeError) { ParamRules.new.must_have(:bob) { |b| b.is_a Dog } }
+  end
+
+  def test_must_have_is_a
+    root = ParamRules.new
+    root.must_have :id
+    root.must_have(:dog) { |d| d.is_a Dog }
+    assert_not_raise(RequestError) { root.validate({"id" => 4, "dog" => {"name" => "Luther", "breed" => "Bouvier", "age_in_years" => 12}}) }
+    assert_raise(RequestError) { root.validate({"id" => 4, "dog" => {"name" => "Luther", "breed" => "Bouvier", "age_in_years" => 12, "extra" => "bad"}}) }
+    assert_raise(RequestError) { root.validate({"id" => 4, "dog" => {"name" => "Luther", "breed" => "Bouvier"}}) }
+    assert_raise(RequestError) { root.validate({"id" => 4, "dog" => {"name" => "Luther", "breed" => "Bouvier", "age_in_years" => 12}, "extra" => "bad"}) }
+    assert_raise(RequestError) { root.validate({"id" => 4}) }
+    assert_raise(RequestError) { root.validate({"id" => 4, "dog" => {}}) }
+    assert_raise(RequestError) { root.validate({"id" => 4, "dog" => "empty"}) }
+  end
+
+  def test_may_have_is_a
+    root = ParamRules.new
+    root.must_have :id
+    root.may_have(:dog) { |d| d.is_a Dog }
+    assert_not_raise(RequestError) { root.validate({"id" => 4, "dog" => {"name" => "Luther", "breed" => "Bouvier", "age_in_years" => 12}}) }
+    assert_not_raise(RequestError) { root.validate({"id" => 4}) }
+    assert_raise(RequestError) { root.validate({"id" => 4, "dog" => {"name" => "Luther", "breed" => "Bouvier", "age_in_years" => 12, "extra" => "bad"}}) }
+    assert_raise(RequestError) { root.validate({"id" => 4, "dog" => {"name" => "Luther", "breed" => "Bouvier"}}) }
+    assert_raise(RequestError) { root.validate({"id" => 4, "dog" => {"name" => "Luther", "breed" => "Bouvier", "age_in_years" => 12}, "extra" => "bad"}) }
+    assert_raise(RequestError) { root.validate({"id" => 4, "dog" => {}}) }
+    assert_raise(RequestError) { root.validate({"id" => 4, "dog" => "empty"}) }
+  end
 
   private
   

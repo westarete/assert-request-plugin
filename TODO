@@ -1,9 +1,3 @@
-* Support ActiveRecord params again via is_a. Example:
-
-    assert_request do |r| 
-      r.params.must_have :fido { |f| f.is_a Dog }
-    end
-    
 * Support must_not_have, which negates must_have, and allows us to override
   requirements created by is_a. Example:
   
