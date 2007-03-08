@@ -15,43 +15,21 @@ class RequestRulesTest < Test::Unit::TestCase
     r.method :put, :delete
     assert_equal [:get, :post, :put, :delete], r.methods
   end
-  
-  def test_requirements
+
+  def test_protocols
     r = RequestRules.new
-    assert_equal({}, r.requirements)
-    r.required "id" => :integer
-    assert_equal({"id" => :integer}, r.requirements)
-    r.required "color" => :string
-    assert_equal({"id" => :integer, "color" => :string}, r.requirements)
-    r.required "x" => :integer, "y" => :integer
-    assert_equal({"id" => :integer, "color" => :string, "x" => :integer, "y" => :integer}, r.requirements)
-    r.required "name" => {"first" => :string}
-    assert_equal({"id" => :integer, "color" => :string, "x" => :integer, "y" => :integer, "name" => {"first" => :string}}, r.requirements)
-    r.required "name" => {"last" => :string}
-    assert_equal({"id" => :integer, "color" => :string, "x" => :integer, "y" => :integer, "name" => {"first" => :string, "last" => :string}}, r.requirements)
-    r.required "name" => {"last" => {"letter" => :string, "number" => :integer}}
-    assert_equal({"id" => :integer, "color" => :string, "x" => :integer, "y" => :integer, "name" => {"first" => :string, "last" => {"letter" => :string, "number" => :integer}}}, r.requirements)
-    r.required "name" => {"last" => {"deep" => {"letter" => :string, "number" => :integer}}}
-    assert_equal({"id" => :integer, "color" => :string, "x" => :integer, "y" => :integer, "name" => {"first" => :string, "last" => {"letter" => :string, "number" => :integer, "deep" => {"letter" => :string, "number" => :integer}}}}, r.requirements)
+    assert_equal [], r.protocols
+    r.protocol :http
+    assert_equal [:http], r.protocols
+    r.protocol :https
+    assert_equal [:http, :https], r.protocols
   end
   
-  def test_options
+  def test_params
     r = RequestRules.new
-    assert_equal({}, r.options)
-    r.optional "id" => :integer
-    assert_equal({"id" => :integer}, r.options)
-    r.optional "color" => :string
-    assert_equal({"id" => :integer, "color" => :string}, r.options)
-    r.optional "x" => :integer, "y" => :integer
-    assert_equal({"id" => :integer, "color" => :string, "x" => :integer, "y" => :integer}, r.options)
-    r.optional "name" => {"first" => :string}
-    assert_equal({"id" => :integer, "color" => :string, "x" => :integer, "y" => :integer, "name" => {"first" => :string}}, r.options)
-    r.optional "name" => {"last" => :string}
-    assert_equal({"id" => :integer, "color" => :string, "x" => :integer, "y" => :integer, "name" => {"first" => :string, "last" => :string}}, r.options)
-    r.optional "name" => {"last" => {"letter" => :string, "number" => :integer}}
-    assert_equal({"id" => :integer, "color" => :string, "x" => :integer, "y" => :integer, "name" => {"first" => :string, "last" => {"letter" => :string, "number" => :integer}}}, r.options)
-    r.optional "name" => {"last" => {"deep" => {"letter" => :string, "number" => :integer}}}
-    assert_equal({"id" => :integer, "color" => :string, "x" => :integer, "y" => :integer, "name" => {"first" => :string, "last" => {"letter" => :string, "number" => :integer, "deep" => {"letter" => :string, "number" => :integer}}}}, r.options)
+    assert r.params.children.empty?
+    assert r.params.parent.nil?
+    assert r.params.name.nil?
   end
-  
+
 end
