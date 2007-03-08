@@ -2,12 +2,13 @@ require 'rake'
 require 'rake/testtask'
 require 'rake/rdoctask'
 
+RAILS_ENV = 'test'
+RAILS_ROOT = File.dirname(__FILE__)
+
 desc 'Default: run unit tests.'
 task :default => :test
 
 task :environment do
-  RAILS_ENV = 'test'
-  RAILS_ROOT = File.dirname(__FILE__)
   require(File.join(RAILS_ROOT, 'config', 'environment'))
 end
 
@@ -15,6 +16,17 @@ desc 'Test all units and functionals'
 task :test do
   Rake::Task["test:units"].invoke       rescue got_error = true
   Rake::Task["test:functionals"].invoke rescue got_error = true
+end
+
+desc "Report code statistics (KLOCs, etc) from the application"
+task :stats do
+  STATS_DIRECTORIES = [
+    %w(Libraries          lib/),
+    %w(Functional\ tests  test/functional),
+    %w(Unit\ tests        test/unit)
+  ].collect { |name, dir| [ name, "#{RAILS_ROOT}/#{dir}" ] }.select { |name, dir| File.directory?(dir) }
+  require 'code_statistics'
+  CodeStatistics.new(*STATS_DIRECTORIES).to_s
 end
 
 namespace :db do
