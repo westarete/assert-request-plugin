@@ -1,3 +1,12 @@
+* Improve rdoc documentation for public use. README should cover
+  justification, installation, and how to handle the resulting exceptions.
+  The assert_request method should be documented with the actual usage and
+  examples.
+
+* Make new release.
+
+* Blog, post, comment, and email about it. Seek suggestions for improvement.
+
 * (Undecided) Syntactic sugar: Support string-based declarations for nested
   elements. This is more succinct than block notation when the number of
   nested params is small. Example:
@@ -10,24 +19,5 @@
 
 * How to handle collections? OK with using plain ruby? or add extra support?
 
-* Update scaffolding to include the appropriate assert_request calls.
+* (Maybe) Update scaffolding to include the appropriate assert_request calls.
 
-* Improve rdoc documentation for public use. README should cover
-  justification, installation, and how to handle the resulting exceptions.
-  The assert_request method should be documented with the actual usage and
-  examples.
-
-* Make new release.
-
-* Blog, post, comment, and email about it. Seek suggestions for improvement.
-
-* I think that forms using alternate methods in forms (such as :method =>
-  :put) still show up as request.method == :post.
-  
-* Find out if we need to ignore _method in the params, or if it's stripped 
-  before we even see it.
-
-* Verify that RESTful aspects (the stuff after the semicolon) are supported
-  properly. This should be handled at the routing level though, so it should
-  be OK -- the stuff after the semicolon should simply get interpreted as the
-  action.
