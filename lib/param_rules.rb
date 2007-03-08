@@ -16,7 +16,8 @@ module AssertRequest
     # settings don't suit your appliction. 
     @@ignore_columns = %w( id created_at updated_at created_on updated_on lock_version )
     
-    def initialize(name=nil, parent=nil, required=true)
+    # TODO: Convert this to a hash of options.
+    def initialize(name=nil, parent=nil, required=true, ignore_unexpected=false)
       if (name.nil? && !parent.nil?) || (parent.nil? && !name.nil?)
         raise "parent and name must both be either nil or not nil"
       end
@@ -25,6 +26,9 @@ module AssertRequest
       @parent = parent
       @required = required
       @children = []
+      # Whether to raise an exception when we encounter unexpected params 
+      # during validation.
+      @ignore_unexpected = ignore_unexpected
     end
     
     def required?
@@ -69,8 +73,8 @@ module AssertRequest
         # Only ignore the standard params at the top level.
         unexpected_keys -= @@ignore_params
       end
-      if !unexpected_keys.empty?
-        raise RequestError, "did not expect #{canonical_name}[:#{unexpected_keys.first}]"
+      unless unexpected_keys.empty?
+        raise RequestError, "did not expect #{canonical_name}[:#{unexpected_keys.first}]" unless @ignore_unexpected
       end
     end
 
@@ -93,7 +97,7 @@ module AssertRequest
         raise "you must supply exactly one parameter name with a block"
       end
       names.each do |name|
-        child = ParamRules.new(name, self, required)
+        child = ParamRules.new(name, self, required, @ignore_unexpected)
         yield child if block_given?
         @children << child
       end          

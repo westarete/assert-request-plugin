@@ -241,6 +241,25 @@ class ParamRulesTest < Test::Unit::TestCase
     assert_raise(RequestError) { root.validate({"id" => 4, "luther" => {"name" => "Luther", "breed" => "Bouvier", "age_in_years" => 12}}) }
     assert_raise(RequestError) { root.validate({"id" => 4, "luther" => {"name" => "Luther", "breed" => "Bouvier", "something_else" => 12}}) }
   end
+  
+  def test_ignore_unexpected
+    root = ParamRules.new(nil, nil, true, true)
+    root.must_have :id
+    assert_not_raise(RequestError) { root.validate({"id" => 4}) }
+    assert_raise(RequestError) { root.validate({"not_id" => 4}) }
+    assert_not_raise(RequestError) { root.validate({"id" => 4, "extra" => "ok"}) }
+  end
+
+  def test_ignore_nested_unexpected
+    root = ParamRules.new(nil, nil, true, true)
+    root.must_have :id
+    root.must_have :luther do |luther| 
+      luther.is_a Dog 
+    end
+    assert_not_raise(RequestError) { root.validate({"id" => 4, "luther" => {"name" => "Luther", "breed" => "Bouvier", "age_in_years" => 12}}) }
+    assert_raise(RequestError)     { root.validate({"id" => 4, "luther" => {"name" => "Luther", "breed" => "Bouvier", "not_age_in_years" => 12}}) }
+    assert_not_raise(RequestError) { root.validate({"id" => 4, "luther" => {"name" => "Luther", "breed" => "Bouvier", "age_in_years" => 12, "extra" => "ok"}}) }
+  end
 
   private
   
