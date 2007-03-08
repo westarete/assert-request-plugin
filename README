@@ -35,8 +35,7 @@ code. Here's an example of how we might use assert_request on the same action:
   def update
     assert_request do |r|
       r.method :post
-      r.required 'id' => :integer
-      r.required 'person' => Person, :except => :company_id
+      r.params.must_have :id, Person
     end
     # the rest of the action is unchanged
   end
@@ -44,9 +43,9 @@ code. Here's an example of how we might use assert_request on the same action:
 This specification now ensures several things for this action:
 
 * The request method must be POST
-* The params hash contains an "id" attribute whose value is an integer
+* The params hash contains an "id" attribute
 * The params hash contains a "person" attribute whose value is a hash that 
-  reprsents the Person model, excluding its "company_id" attribute
+  reprsents the Person model
 
 assert_request examines the Person model, and expands it in place as if you'd
 specified all of its attributes by hand.

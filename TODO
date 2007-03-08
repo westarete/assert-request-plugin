@@ -1,6 +1,6 @@
 * (Undecided) Syntactic sugar: Support string-based declarations for nested
   elements. This is more succinct than block notation when the number of
-  nested params are small. Example:
+  nested params is small. Example:
 
     assert_params_must_have "[:fido][:name]"
     
