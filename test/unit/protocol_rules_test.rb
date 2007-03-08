@@ -1,5 +1,5 @@
 require File.dirname(__FILE__) + '/../test_helper'
-require 'method_rules'
+require 'protocol_rules'
 
 class ProtocolRulesTest < Test::Unit::TestCase
   include AssertRequest
