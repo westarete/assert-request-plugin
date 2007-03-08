@@ -163,6 +163,39 @@ class AssertRequestControllerTest < Test::Unit::TestCase
     assert_invalid_request :get, :params_must_have_dog_name
   end
   
+  def test_assert_protocol
+    # Shouldn't care about anything except that protocol is https.
+    @request.env['HTTPS'] = 'on'
+    assert @request.ssl?
+    assert_valid_request :get, :protocol_is_https
+    assert_valid_request :get, :protocol_is_https, "id" => '3'
+    assert_valid_request :put, :protocol_is_https, "id" => '3'
+    assert_valid_request :post, :protocol_is_https, "id" => '3', "person" => {"name" => "john"}
+    @request.env['HTTPS'] = 'off'
+    assert_invalid_request :get, :protocol_is_https
+    assert_invalid_request :get, :protocol_is_https, "id" => '3'
+    assert_invalid_request :put, :protocol_is_https, "id" => '3'
+    assert_invalid_request :post, :protocol_is_https, "id" => '3', "person" => {"name" => "john"}
+  end
+  
+  def test_assert_method
+    # Shouldn't care about anything except that the request method is "PUT".
+    assert_valid_request :put, :method_is_put
+    assert_valid_request :put, :method_is_put, "id" => '3'
+    assert_valid_request :put, :method_is_put, "id" => '3', "person" => {"name" => "john"}
+    assert_invalid_request :get, :method_is_put
+    assert_invalid_request :get, :method_is_put, "id" => '3'
+    assert_invalid_request :post, :method_is_put, "id" => '3'
+    assert_invalid_request :post, :method_is_put, "id" => '3', "person" => {"name" => "john"}
+    @request.env['HTTPS'] = 'on'
+    assert @request.ssl?
+    assert_invalid_request :get, :method_is_put
+    assert_invalid_request :get, :method_is_put, "id" => '3'
+    assert_invalid_request :post, :method_is_put, "id" => '3'
+    assert_invalid_request :post, :method_is_put, "id" => '3', "person" => {"name" => "john"}
+    @request.env['HTTPS'] = 'off'    
+  end
+  
 private
 
   # Works like "get" or "post", only it also asserts that the request was 

@@ -13,18 +13,15 @@ module AssertRequest
   # Call this method at the beginning of your action to verify that the current
   # parameters match your idea of a valid set of values.
   def assert_request
-    # Collect the requirements via the given block.
-    rules = RequestRules.new
-    yield rules
-        
-    # Parse the initial requirements and validate each part of the request.
-    MethodRules.new(rules.methods).validate(request.method)
-    ProtocolRules.new(rules.protocols).validate(request.protocol)
-    rules.params.validate(params)    
-  rescue RequestError
-    # Temporarily intercept the exception here so that we can log the details.
-    logger.error "Bad request: #{$!}" 
-    raise
+    safe_assertion do
+      # Collect the requirements via the given block.
+      rules = RequestRules.new
+      yield rules
+      # Parse the initial requirements and validate each part of the request.
+      MethodRules.new(rules.methods).validate(request.method)
+      ProtocolRules.new(rules.protocols).validate(request.protocol)
+      rules.params.validate(params)    
+    end
   end
 
   # Only checks the params hash for the given elements. Ignores any other 
@@ -41,13 +38,35 @@ module AssertRequest
   # and :name in the params hash, whereas the previous will not.
   #   
   def assert_params_must_have(*args, &block)
-    param_rules = ParamRules.new(nil, nil, true, true)
-    param_rules.must_have(*args, &block)
-    param_rules.validate(params)
+    safe_assertion do
+      param_rules = ParamRules.new(nil, nil, true, true)
+      param_rules.must_have(*args, &block)
+      param_rules.validate(params)
+    end
+  end    
+  
+  def assert_protocol(*args)
+    safe_assertion do
+      ProtocolRules.new(*args).validate(request.protocol)
+    end
+  end
+  
+  def assert_method(*args)
+    safe_assertion do
+      MethodRules.new(*args).validate(request.method)
+    end
+  end
+
+  private
+
+  # Run the given code wrapped in a rescue block, so that we trap and log 
+  # any RequestError exceptions that get raised.
+  def safe_assertion
+    yield
   rescue RequestError
     # Temporarily intercept the exception here so that we can log the details.
     logger.error "Bad request: #{$!}" 
-    raise
-  end    
+    raise        
+  end
     
 end

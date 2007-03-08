@@ -103,4 +103,12 @@ class AssertRequestController < ActionController::Base
     assert_params_must_have(:dog) { |dog| dog.must_have :name }
   end
   
+  def protocol_is_https
+    assert_protocol :https
+  end
+  
+  def method_is_put
+    assert_method :put
+  end
+  
 end
