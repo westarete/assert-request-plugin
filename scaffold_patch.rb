@@ -4,6 +4,10 @@
 # to assert_request. In the case of scaffold_resource, it will also modify
 # the scaffolding's functional tests so that they work right away.
 #
+# This script has been tested against rails-1.2.2. I don't recommend trying
+# this script if you have a different version of rails, unless you're prepared
+# to fix any breakage that may occur.
+#
 # To apply the patch on Mac or Linux, just run this script as the superuser:
 #   sudo ruby scaffold_patch.rb
 #
