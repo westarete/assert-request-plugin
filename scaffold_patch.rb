@@ -1,10 +1,24 @@
-# This is a patch to your rails installation that adds the appropriate 
-# assert_request calls to the scaffold and scaffold_resource generators. 
-# Apply it to your rails installation using "patch", e.g.:
+# This script will patch the scaffold and scaffold_resource generators in 
+# your latest rails installation so that they include the appropriate calls
+# to assert_request. In the case of scaffold_resource, it will also modify
+# the scaffolding's functional tests so that they work right away.
 #
-# cd /usr/lib/ruby/gems/1.8/gems/rails-1.2.2
-# patch -p0 < ~/assert_request/scaffold.patch
+# To apply the patch on Mac or Linux, just run this script as the superuser:
+#   sudo ruby scaffold_patch.rb
+#
+# This script probably won't work on Windows, since there's no patch command
+# by default.
 
+require 'rubygems'
+rails = Gem.source_index.find_name("rails").sort_by {|spec| spec.version}.last
+if rails.nil?
+  raise "can't find the latest rails gem on this machine"
+end
+puts "patching #{rails.full_gem_path}"
+Dir.chdir rails.full_gem_path
+IO.popen("patch -p0", "w") { |cmd| cmd.write(DATA.read) }
+
+__END__
 Index: lib/rails_generator/generators/components/scaffold/templates/controller.rb
 ===================================================================
 --- lib/rails_generator/generators/components/scaffold/templates/controller.rb	(revision 6337)
