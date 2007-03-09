@@ -40,12 +40,12 @@ code. Here's an example of how we might use assert_request on the same action:
     # the rest of the action is unchanged
   end
 
-This specification now ensures several things for this action:
+We've now ensured several things for this action:
 
 * The request method must be POST
 * The params hash contains an "id" attribute
 * The params hash contains a "person" attribute whose value is a hash that 
-  reprsents the Person model
+  represents the Person model
 
 assert_request examines the Person model, and expands it in place as if you'd
 specified all of its attributes by hand.
@@ -53,9 +53,8 @@ specified all of its attributes by hand.
 Now if we receive a request that doesn't match our specification, then the
 application will raise a RequestError exception, and we'll get a detailed
 message in the logs. In development mode, the exception and its explanation
-will be displayed in the browser. In production mode, we can use the
-exception_notification plugin to either render a 404 Not Found response, email
-us, or both.
+will be displayed in the browser. In production mode, a 404 Not Found response
+is returned.
 
 For all of the details on usage, see AssertRequest#assert_request
 
@@ -69,39 +68,12 @@ application's directory:
 
 That's it. You're ready to add calls to assert_request to your actions.
 
-== Handling the Exceptions
-
-As mentioned before, the exceptions will go directly to your browser while
-in development mode, just like any other exception. In addition, you'll get
-detailed information in the logs about what went wrong with the request.
-
-In production mode however, you probably want to change the behavior. Since
-assert_request throws a specific type of exception
-(AssertRequest::RequestError), we can catch those at the top level and treat
-them differently than a typical Ruby RuntimeException. You can either do this
-by overriding the standard rails rescue_action_in_public method, or you can
-use the exception_notification plugin (my preferred method).
-
-The exception_notification plugin sends descriptive emails to a given address
-when your application encounters errors while running in production mode. We
-can modify it slightly so that it either 
-
-If you're not going to use exception_notifier, and you just want assert_request
-to log the error and display the 404 Not Found page, then you can define a 
-simple rescue_action_in_public in your application.rb, such as this one, which
-piggybacks onto the existing rescue_action_in_public:
-
-  def rescue_action_in_public_with_request_error(exception)
-    if exception.kind_of? AssertRequest::RequestError
-      render :file => "#{RAILS_ROOT}/public/404.html", :status => "404 Not Found"
-    end
-  end
-
-  alias_method_chain :rescue_action_in_public, :request_error
-
 == Author
 
   Scott A. Woods
   West Arete Computing, Inc.
   http://westarete.com
   scott at westarete dot com
+
+(c) Copyright 2007 by West Arete Computing, Inc.
+
