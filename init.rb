@@ -3,7 +3,8 @@ class ActionController::Base
   include AssertRequest
 
   # In production mode, trap assert_request's RequestError exceptions, and
-  # render a 404 response instead.
+  # render a 404 response instead of the default 500. Comment out the 
+  # alias_method_chain call below if you don't want this behavior.
   def rescue_action_in_public_with_request_error(exception)
     if exception.kind_of? RequestError
       respond_to do |type|
