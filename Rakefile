@@ -75,7 +75,7 @@ namespace :doc do
   Rake::RDocTask.new(:plugin) do |rdoc|
     rdoc.rdoc_dir = 'rdoc'
     rdoc.title    = 'AssertRequest'
-    rdoc.options << '--line-numbers' << '--inline-source'
+    rdoc.options << '--line-numbers' << '--inline-source' << '--accessor' << 'cattr_accessor=rw'
     rdoc.rdoc_files.include('README')
     rdoc.rdoc_files.include('lib/**/*.rb')
   end
