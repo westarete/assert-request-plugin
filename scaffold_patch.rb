@@ -12,6 +12,9 @@
 # To apply the patch on Mac or Linux, just run this script as the superuser:
 #   sudo ruby scaffold_patch.rb
 #
+# If you ever want to remove the patch, just re-run the above command, and 
+# answer "y" to the questions about whether to reverse the patch.
+#
 # This script probably won't work on Windows, since there's no patch command
 # by default.
 #
