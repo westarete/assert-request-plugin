@@ -1,7 +1,11 @@
 * Improve rdoc documentation for public use. README should cover
   justification, installation, and how to handle the resulting exceptions.
   The assert_request method should be documented with the actual usage and
-  examples.
+  examples. Still to do:
+    * README
+    * must_have
+    * may_have
+    * must_not_have
 
 * Make new release.
 
