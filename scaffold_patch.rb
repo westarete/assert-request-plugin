@@ -6,7 +6,8 @@
 #
 # This script has been tested against rails-1.2.2. I don't recommend trying
 # this script if you have a different version of rails, unless you're prepared
-# to fix any breakage that may occur.
+# to fix any breakage that may occur (you could always add the --dry-run 
+# option to the patch command below to try it out safely first).
 #
 # To apply the patch on Mac or Linux, just run this script as the superuser:
 #   sudo ruby scaffold_patch.rb
