@@ -19,5 +19,3 @@
 
 * How to handle collections? OK with using plain ruby? or add extra support?
 
-* (Maybe) Update scaffolding to include the appropriate assert_request calls.
-
