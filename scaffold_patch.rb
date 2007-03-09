@@ -14,6 +14,8 @@
 #
 # This script probably won't work on Windows, since there's no patch command
 # by default.
+#
+# (c) Copyright 2007 by West Arete Computing, Inc.
 
 require 'rubygems'
 rails = Gem.source_index.find_name("rails").sort_by {|spec| spec.version}.last
