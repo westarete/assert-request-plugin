@@ -1,3 +1,7 @@
+# assert_request Rails Plugin
+#
+# (c) Copyright 2007 by West Arete Computing, Inc.
+
 require 'request_error'
 
 module AssertRequest
