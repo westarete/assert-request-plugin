@@ -1,3 +1,4 @@
+#!/usr/bin/env ruby
 # This script will patch the scaffold and scaffold_resource generators in 
 # your latest rails installation so that they include the appropriate calls
 # to assert_request. In the case of scaffold_resource, it will also modify
@@ -14,7 +15,7 @@ rails = Gem.source_index.find_name("rails").sort_by {|spec| spec.version}.last
 if rails.nil?
   raise "can't find the latest rails gem on this machine"
 end
-puts "patching #{rails.full_gem_path}"
+puts "found #{rails.full_gem_path}"
 Dir.chdir rails.full_gem_path
 IO.popen("patch -p0", "w") { |cmd| cmd.write(DATA.read) }
 
