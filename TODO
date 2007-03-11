@@ -1,11 +1,4 @@
-* Improve rdoc documentation for public use. README should cover
-  justification, installation, and how to handle the resulting exceptions.
-  The assert_request method should be documented with the actual usage and
-  examples. Still to do:
-    * README
-    * must_have
-    * may_have
-    * must_not_have
+* Tests don't seem to run at all under win32 native.
 
 * Make new release.
 

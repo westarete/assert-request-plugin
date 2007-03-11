@@ -56,12 +56,14 @@ message in the logs. In development mode, the exception and its explanation
 will be displayed in the browser. In production mode, a 404 Not Found response
 is returned.
 
-If assert_request seems too heavy-handed for your needs, this plugin also
-includes the methods AssertRequest#assert_params_must_have,
-AssertRequest#assert_method, and AssertRequest#assert_protocol, which are much
-more succinct to use, and have more specific uses.
-
 For all of the details on usage, see AssertRequest#assert_request
+
+If assert_request seems too heavy-handed for your needs, this plugin also
+includes some additional assertions which are more narrowly targeted:
+
+* AssertRequest#assert_params_must_have
+* AssertRequest#assert_method
+* AssertRequest#assert_protocol
 
 Finally, the plugin includes a patch for the rails scaffold generators, so 
 that they include the appropriate calls to assert_request. This might save 

@@ -36,7 +36,7 @@ module AssertRequest
   #   end
   #
   # It should be noted that assert_request will also raise a RequestError
-  # exceptions for unexpected params -- ones that aren't declared in your
+  # exception for unexpected params -- ones that aren't declared in your
   # block. If this is too strict for your needs, or if you know some but not
   # all of the params that you're going to encounter (such as in a 
   # before_filter), then assert_request_must_have may be a good alternative.
@@ -54,7 +54,7 @@ module AssertRequest
   #     params hash, but are not required.
   #   * ParamRules#is_a for a convenient shortcut for declaring params that
   #     match an ActiveRecord model.
-  #   * ParamRules#must_not_have for cancelling out attributes declared via
+  #   * ParamRules#must_not_have for excluding some attributes declared via
   #     ParamRules#is_a.
   # * RequestError for information about the exception that's raised when
   #   a request doesn't match the declaration, and how that exception is 

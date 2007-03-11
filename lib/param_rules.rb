@@ -11,14 +11,19 @@ module AssertRequest
   class ParamRules
     attr_reader :name, :parent, :children #:nodoc:
     
-    # The list of params that we should ignore by default. It's as if we
-    # said that all requests "may_have" these elements. By default this
-    # list is set to "action", "controller", "commit", and "_method". 
+    # The list of params that we should allow (but not require) by default. It's as if we
+    # said that all requests may_have these elements. By default this
+    # list is set to:
+    #
+    # * action
+    # * controller
+    # * commit
+    # * _method
     #
     # You can modify this list in your environment.rb if you need to. Always
     # use strings, not symbols for the elements. Here's an example:
     #
-    #   ParamRules.ignore_params << "orientation"
+    #   AssertRequest::ParamRules.ignore_params << "orientation"
     #
     cattr_accessor :ignore_params
     @@ignore_params = %w( action controller commit _method )
@@ -26,13 +31,20 @@ module AssertRequest
     # The columns in ActiveRecord models that we should ignore by
     # default when expanding an is_a directive into a series of 
     # must_have directives for each attribute. These are the 
-    # attributes that are never present in your forms (and hence your params), 
-    # such as "id", "created_at", and "lock_version".
+    # attributes that are almost never present in your forms (and hence your params).
+    # By default this list is set to:
+    #
+    # * id
+    # * created_at
+    # * updated_at
+    # * created_on
+    # * updated_on
+    # * lock_version
     #
     # You can modify this in your environment.rb if you have common attributes
     # that should always be ignored. Here's an example:
     #
-    #   ParamRules.ignore_columns << "deleted_at"
+    #   AssertRequest::ParamRules.ignore_columns << "deleted_at"
     #
     cattr_accessor :ignore_columns
     @@ignore_columns = %w( id created_at updated_at created_on updated_on lock_version )
@@ -59,35 +71,102 @@ module AssertRequest
       end
     end
     
-    # Specifies the elements that must be present in the params hash.
+    # Use this directive to specify elements that must be present in the params hash. 
+    # Elements are represented by symbols or strings, and a list may be specified in 
+    # a single declaration:
+    #
+    #   assert_request do |r|
+    #     r.params.must_have :id, :name
+    #   end
+    #
+    # This states that the params hash *must* contain params[:id] and params[:name], 
+    # and nothing else. 
+    #
+    # To specify nested elements, you can specify a block with a single element.
+    # The block then defines that element's children:
+    #
+    #   assert_request do |r|
+    #     r.params.must_have :person do |person|
+    #       person.must_have :name
+    #     end
+    #   end
+    # 
+    # This states that the params hash *must* contain params[:person][:name], and
+    # nothing else. You can nest items arbitrarily deeply.
+    # 
     def must_have(*args, &block)
       add_child(true, *args, &block)
     end
     
-    # Specifies the elements that are allowed (but not required) to be in the
-    # params hash.
+    # Use this directive to specify elements that are allowed (but not required) to be in the
+    # params hash. Has the exact same syntax as must_have, above. The two directives can
+    # be used interchangably in any params declaration. Example:
+    #
+    #   assert_request do |r|
+    #     r.params.must_have :person do |person|
+    #       person.must_have :name
+    #       person.may_have :age, :height
+    #     end
+    #   end
+    #
+    # This states that the params hash must contain params[:person][:name],
+    # but it may or may not contain params[:person][:age] or params[:person][:height].
+    #
     def may_have(*args, &block)
       add_child(false, *args, &block)
     end
     
-    # Specifies elements that must not appear in the params hash. This is 
-    # usually used to negate elements that are automatically added by an
-    # ActiveRecord type via is_a.
+    # Use this directive to specify one or more elements that must *not* appear in the params hash. This 
+    # effectively cancels out a previous must_have declaration for the same element.
+    # This is usually used to exclude certain model attributes from an is_a declaration.
+    # For example, let's say that we have a Dog model that 
+    # has the following table definition:
+    #
+    #   create_table :dogs do |t|
+    #     t.column :name,   :string
+    #     t.column :breed,  :string
+    #     t.column :collar, :boolean
+    #     t.column :age,    :integer
+    #   end
+    #
+    # Given this model, let's now consider the following assert_request declaration:
+    #
+    #   assert_request do |r|
+    #     r.params.must_have :luther do |luther|
+    #       luther.is_a Dog
+    #       luther.must_not_have :collar, :age
+    #     end
+    #   end
+    #   
+    # If we disregard the must_not_have statement for a moment, the is_a statement by itself
+    # requires the following params:
+    #
+    # * params[:luther][:name]
+    # * params[:luther][:breed]
+    # * params[:luther][:collar]
+    # * params[:luther][:age]
+    #
+    # The must_not_have statement then excludes :collar and :age, so that the
+    # final set of required params is:
+    # 
+    # * params[:luther][:name]
+    # * params[:luther][:breed]
+    # 
     def must_not_have(*args)
       remove_child(*args)
     end
     
     # This is a shortcut for declaring elements that represent ActiveRecord
-    # classes. Essentially, it creates a "must_have" declaration for each
+    # classes. Essentially, it creates a must_have declaration for each
     # attribute of the given model (excluding the ones in the class
-    # attribute "ignore_params", which is described at the top of this page).
+    # attribute ignore_columns, which is described at the top of this page).
     #
     # For example, let's presume that you have an ActiveRecord model 
     # called Person that has a table structure like this:
     #
-    #   create_table :person do |t|
-    #     t.column :name, :string
-    #     t.column :age, :integer
+    #   create_table :people do |t|
+    #     t.column :name,    :string
+    #     t.column :age,     :integer
     #     t.column :address, :text
     #   end
     #
