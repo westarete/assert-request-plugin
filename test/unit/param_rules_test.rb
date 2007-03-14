@@ -14,8 +14,8 @@ class ParamRulesTest < Test::Unit::TestCase
   
   def test_parent_and_name_must_both_be_nil_or_non_nil
     parent = ParamRules.new
-    assert_raise(RuntimeError) { ParamRules.new(nil, parent) }
-    assert_raise(RuntimeError) { ParamRules.new("hi", nil)   }
+    assert_raise(ArgumentError) { ParamRules.new(nil, parent) }
+    assert_raise(ArgumentError) { ParamRules.new("hi", nil)   }
     ParamRules.new("hi", parent)
   end
   
@@ -41,7 +41,7 @@ class ParamRulesTest < Test::Unit::TestCase
   end
   
   def test_block_is_not_compatible_with_multiple_names
-    assert_raise(RuntimeError) do
+    assert_raise(ArgumentError) do
       ParamRules.new.must_have :id, :name do |p|
         p.must_have :email
       end
@@ -170,9 +170,9 @@ class ParamRulesTest < Test::Unit::TestCase
   end
   
   def test_is_a_should_only_be_used_with_models
-    assert_raise(RuntimeError) { ParamRules.new.must_have(:bob) { |b| b.is_a "string, not an AR class" } }
-    assert_raise(RuntimeError) { ParamRules.new.must_have(:bob) { |b| b.is_a Fixnum } }
-    assert_not_raise(RuntimeError) { ParamRules.new.must_have(:bob) { |b| b.is_a Dog } }
+    assert_raise(ArgumentError) { ParamRules.new.must_have(:bob) { |b| b.is_a "string, not an AR class" } }
+    assert_raise(ArgumentError) { ParamRules.new.must_have(:bob) { |b| b.is_a Fixnum } }
+    assert_not_raise(ArgumentError) { ParamRules.new.must_have(:bob) { |b| b.is_a Dog } }
   end
 
   def test_must_have_is_a

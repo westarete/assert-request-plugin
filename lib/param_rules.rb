@@ -52,7 +52,7 @@ module AssertRequest
     # TODO: Convert this to a hash of options.
     def initialize(name=nil, parent=nil, required=true, ignore_unexpected=false) # :nodoc:
       if (name.nil? && !parent.nil?) || (parent.nil? && !name.nil?)
-        raise "parent and name must both be either nil or not nil"
+        raise ArgumentError, "parent and name must both be either nil or not nil"
       end
       @parent = parent
       @required = required
@@ -199,7 +199,7 @@ module AssertRequest
     # 
     def is_a(klass)
       unless is_model?(klass)
-        raise "you must supply an ActiveRecord class to the is_a method"
+        raise ArgumentError, "you must supply an ActiveRecord class to the is_a method"
       end
       klass.columns.each do |c|
         must_have c.name unless ignore_column?(c)
@@ -252,7 +252,7 @@ module AssertRequest
     # child is required (must_have) or not (may_have).
     def add_child(required, *names)
       if block_given? && names.length != 1
-        raise "you must supply exactly one parameter name with a block"
+        raise ArgumentError, "you must supply exactly one parameter name with a block"
       end
       names.each do |name|
         child = ParamRules.new(name, self, required, @ignore_unexpected)

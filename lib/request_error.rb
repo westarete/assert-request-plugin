@@ -4,6 +4,10 @@
 
 module AssertRequest
   
+  # This is the parent class for all exceptions raised (intentionlly) by this
+  # plugin. 
+  class Error < RuntimeError ; end
+  
   # This is the exception that we raise when we find an invalid request. By
   # default, the full details of this exception will be displayed to the 
   # browser in development mode. In production mode it will be intercepted, 
@@ -21,6 +25,10 @@ module AssertRequest
   # in status 500 errors, then edit init.rb in the plugin root and comment
   # out the call to alias_method_chain.
   # 
-  class RequestError < RuntimeError ; end
+  class RequestError < Error ; end
+  
+  # This is the exception that we raise when incorrect or ambiguous arguments
+  # are passed to a method in this plugin.
+  class ArgumentError < Error ; end
   
 end

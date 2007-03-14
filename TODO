@@ -1,7 +1,5 @@
-* Change exception hierarchy, so that it matches this concept:
-  http://weblog.jamisbuck.org/2007/3/7/raising-the-right-exception
-  Stop using RuntimeError, and instead use two flavors of descendents of 
-  our own custom exception class.
+* Wrap public methods in their own module, so that we only have to import
+  *them* into the application controller, rather than all of our code.
 
 * Tests don't seem to run at all under win32 native.
 
