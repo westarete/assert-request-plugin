@@ -1,6 +1,6 @@
 class ActionController::Base 
-  # Ensure that all controllers have direct access to assert_request.
-  include AssertRequest
+  # Ensure that all controllers have direct access to the assertions.
+  include AssertRequest::PublicMethods
 
   # In production mode, trap assert_request's RequestError exceptions, and
   # render a 404 response instead of the default 500. Comment out the 

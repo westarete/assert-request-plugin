@@ -6,7 +6,7 @@
 # request was deemed to be valid, and redirect if the request was deemed to
 # be invalid.
 class AssertRequestController < ActionController::Base
-  include AssertRequest
+  include AssertRequest::PublicMethods
 
   def get_with_no_params
     assert_request do |r|

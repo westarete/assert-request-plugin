@@ -1,6 +1,3 @@
-* Wrap public methods in their own module, so that we only have to import
-  *them* into the application controller, rather than all of our code.
-
 * Tests don't seem to run at all under win32 native.
 
 * Make new release.
