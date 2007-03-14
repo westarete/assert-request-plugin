@@ -1,3 +1,6 @@
+* Refactor MethodRules and ProtocolRules so that they work more like
+  ParamRules for collection and validation.
+
 * Tests don't seem to run at all under win32 native.
 
 * Make new release.
