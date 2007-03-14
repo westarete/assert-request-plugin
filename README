@@ -6,7 +6,9 @@ only called with the method, protocol, and parameters that you expect.
 This can save a considerable amount of error-checking code, uncover hidden
 bugs, and prevent security holes. 
 
-For example, here's a typical update action:
+== Example
+
+Here's a typical update action:
 
   def update
     @person = Person.find params[:id]
@@ -56,19 +58,6 @@ message in the logs. In development mode, the exception and its explanation
 will be displayed in the browser. In production mode, a 404 Not Found response
 is returned.
 
-For all of the details on usage, see AssertRequest#assert_request
-
-If assert_request seems too heavy-handed for your needs, this plugin also
-includes some additional assertions which are more narrowly targeted:
-
-* AssertRequest#assert_params_must_have
-* AssertRequest#assert_method
-* AssertRequest#assert_protocol
-
-Finally, the plugin includes a patch for the rails scaffold generators, so 
-that they include the appropriate calls to assert_request. This might save 
-some time, and it can be a good way to see the plugin in actual use.
-
 == Installation
 
 Install the plugin by running the following commands from your rails
@@ -78,6 +67,29 @@ application's directory:
   ./script/plugin install assert_request
 
 That's it. You're ready to add calls to assert_request to your actions.
+
+== Documentation
+
+The four assertions that come with this plugin are documented in
+AssertRequest::PublicMethods. If assert_request seems too heavy-handed for
+your needs, the other three are more narrowly targeted:
+
+* assert_params_must_have
+* assert_method
+* assert_protocol
+
+== Patch for Scaffolding
+
+Finally, the plugin includes a patch for the rails scaffold generators (both
+the original and scaffold_resource), so that they include the appropriate
+calls to assert_request when they generate your scaffolding. This might save
+some time, and it can be a good way to see the plugin in actual use. The patch
+is called scaffold_patch.rb, and is located in the plugin source (probably
+under vendor/plugins/assert_request/). You can apply it to your rails
+installation by running it as the superuser (at least on MacOS, Linux, and
+Cygwin):
+
+  sudo ruby scaffold_patch.rb
 
 == Author
 
