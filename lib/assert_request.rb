@@ -44,7 +44,7 @@ module AssertRequest
     # exception for unexpected params -- ones that aren't declared in your
     # block. If this is too strict for your needs, or if you know some but not
     # all of the params that you're going to encounter (such as in a 
-    # before_filter), then assert_request_must_have may be a good alternative.
+    # before_filter), then assert_params_must_have may be a good alternative.
     #
     # Here some pointers to within the documentation to learn about each part
     # of the example above:
