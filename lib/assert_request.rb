@@ -62,13 +62,9 @@ module AssertRequest
   # 
   def assert_request #:yields: request
     safe_assertion do
-      # Collect the requirements via the given block.
       rules = RequestRules.new
       yield rules
-      # Parse the initial requirements and validate each part of the request.
-      MethodRules.new(rules.methods).validate(request.method)
-      ProtocolRules.new(rules.protocols).validate(request.protocol)
-      rules.params.validate(params)    
+      rules.validate(request)
     end
   end
 
@@ -114,7 +110,7 @@ module AssertRequest
   # detail. 
   def assert_protocol(*args)
     safe_assertion do
-      ProtocolRules.new(*args).validate(request.protocol)
+      ProtocolRules.new.allow(*args).validate(request.protocol)
     end
   end
   
@@ -125,18 +121,17 @@ module AssertRequest
   # detail. 
   def assert_method(*args)
     safe_assertion do
-      MethodRules.new(*args).validate(request.method)
+      MethodRules.new.allow(*args).validate(request.method)
     end
   end
 
   private
 
-  # Run the given code wrapped in a rescue block, so that we trap and log 
-  # any RequestError exceptions that get raised.
+  # Run the given code wrapped in a rescue block, so that we temporarily trap 
+  # and log any RequestError exceptions that get raised.
   def safe_assertion
     yield
   rescue RequestError
-    # Temporarily intercept the exception here so that we can log the details.
     logger.error "Bad request: #{$!}" 
     raise        
   end

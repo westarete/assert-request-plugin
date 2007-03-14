@@ -1,5 +1,7 @@
-* Refactor MethodRules and ProtocolRules so that they work more like
-  ParamRules for collection and validation.
+* Change exception hierarchy, so that it matches this concept:
+  http://weblog.jamisbuck.org/2007/3/7/raising-the-right-exception
+  Stop using RuntimeError, and instead use two flavors of descendents of 
+  our own custom exception class.
 
 * Tests don't seem to run at all under win32 native.
 

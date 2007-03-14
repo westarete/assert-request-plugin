@@ -7,22 +7,22 @@ class RequestRulesTest < Test::Unit::TestCase
     
   def test_methods
     r = RequestRules.new
-    assert_equal [], r.methods
-    r.method :get
-    assert_equal [:get], r.methods
+    # Sneaky way to steal the MethodRules object from RequestRules
+    methods = r.method :get
+    assert_equal [:get], methods.requirements
     r.method :post
-    assert_equal [:get, :post], r.methods
+    assert_equal [:get, :post], methods.requirements
     r.method :put, :delete
-    assert_equal [:get, :post, :put, :delete], r.methods
+    assert_equal [:get, :post, :put, :delete], methods.requirements
   end
 
   def test_protocols
     r = RequestRules.new
-    assert_equal [], r.protocols
-    r.protocol :http
-    assert_equal [:http], r.protocols
+    # Sneaky way to steal the MethodRules object from RequestRules
+    protocols = r.protocol :http
+    assert_equal [:http], protocols.requirements
     r.protocol :https
-    assert_equal [:http, :https], r.protocols
+    assert_equal [:http, :https], protocols.requirements
   end
   
   def test_params

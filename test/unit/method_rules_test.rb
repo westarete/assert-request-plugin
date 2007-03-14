@@ -5,14 +5,10 @@ class MethodRulesTest < Test::Unit::TestCase
   include AssertRequest
 
   def test_initialize
-    assert_equal [:get], MethodRules.new(:get).requirements
-    assert_equal [:get], MethodRules.new([:get]).requirements
-    assert_equal [:get, :post], MethodRules.new([:get, :post]).requirements
-  end
-
-  def test_requirements_default_to_get
-    assert_equal [:get], MethodRules.new.requirements
-    assert_equal [:get], MethodRules.new([]).requirements
+    assert_equal [], MethodRules.new.requirements
+    assert_equal [], MethodRules.new.allow().requirements
+    assert_equal [:get], MethodRules.new.allow(:get).requirements
+    assert_equal [:get, :post], MethodRules.new.allow(:get, :post).requirements
   end
   
   def test_validate
@@ -20,11 +16,11 @@ class MethodRulesTest < Test::Unit::TestCase
     assert_not_raise(RequestError) { rules.validate(:get) }
     assert_raise(RequestError) { rules.validate(:post) }
     
-    rules = MethodRules.new :post
+    rules = MethodRules.new.allow(:post)
     assert_not_raise(RequestError) { rules.validate(:post) }
     assert_raise(RequestError) { rules.validate(:get) }
     
-    rules = MethodRules.new [:get, :post]
+    rules = MethodRules.new.allow(:get, :post)
     assert_not_raise(RequestError) { rules.validate(:get) }
     assert_not_raise(RequestError) { rules.validate(:post) }
     assert_raise(RequestError) { rules.validate(:put) }

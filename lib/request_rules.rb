@@ -8,12 +8,11 @@ module AssertRequest
   # assert_request call. You use it to describe the request methods, 
   # parameters, and protocols that are permitted for this request. 
   class RequestRules 
-    attr_reader :methods, :protocols #:nodoc:
-
+    
     def initialize #:nodoc:
-      @methods      = []
-      @protocols    = []
-      @params       = ParamRules.new
+      @methods   = MethodRules.new
+      @protocols = ProtocolRules.new
+      @params    = ParamRules.new
     end
 
     # Used to describe the request methods that are permitted for this 
@@ -31,7 +30,7 @@ module AssertRequest
     # assert_request will presume that only :get is allowed.
     #
     def method(*methods)
-      @methods = @methods.concat(methods).flatten
+      @methods.allow(*methods)
     end
 
     # Used to describe the protocols that are permitted for this 
@@ -48,7 +47,7 @@ module AssertRequest
     # assert_request will presume that only :http is allowed.
     #
     def protocol(*protocols)
-      @protocols = @protocols.concat(protocols).flatten
+      @protocols.allow(*protocols)
     end
     
     # Used to describe the params hash for this request. Most commonly, the
@@ -69,6 +68,13 @@ module AssertRequest
     #
     def params
       @params
+    end
+    
+    # Validate the methods, protocols, and params of the given request.
+    def validate(request) #:nodoc:
+      @methods.validate(request.method)
+      @protocols.validate(request.protocol)
+      @params.validate(request.parameters)          
     end
 
   end
