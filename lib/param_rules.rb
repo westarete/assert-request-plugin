@@ -38,8 +38,9 @@ module AssertRequest
     # * created_at
     # * updated_at
     # * created_on
-    # * updated_on
     # * lock_version
+    # * position
+    # * updated_on
     #
     # You can modify this in your environment.rb if you have common attributes
     # that should always be ignored. Here's an example:
@@ -47,7 +48,7 @@ module AssertRequest
     #   AssertRequest::ParamRules.ignore_columns << "deleted_at"
     #
     cattr_accessor :ignore_columns
-    @@ignore_columns = %w( id created_at updated_at created_on updated_on lock_version )
+    @@ignore_columns = %w( id created_at updated_at created_on lock_version position updated_on )
     
     # TODO: Convert this to a hash of options.
     def initialize(name=nil, parent=nil, required=true, ignore_unexpected=false) # :nodoc:
