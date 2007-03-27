@@ -72,6 +72,24 @@ module AssertRequest
       end
     end
     
+    # Use this directive to specify elements that are allowed (but not required) to be in the
+    # params hash. Has the exact same syntax as must_have, below. The two directives can
+    # be used interchangably in any params declaration. Example:
+    #
+    #   assert_request do |r|
+    #     r.params.must_have :person do |person|
+    #       person.must_have :name
+    #       person.may_have :age, :height
+    #     end
+    #   end
+    #
+    # This states that the params hash must contain params[:person][:name],
+    # but it may or may not contain params[:person][:age] or params[:person][:height].
+    #
+    def may_have(*args, &block)
+      add_child(false, *args, &block)
+    end
+    
     # Use this directive to specify elements that must be present in the params hash. 
     # Elements are represented by symbols or strings, and a list may be specified in 
     # a single declaration:
@@ -97,24 +115,6 @@ module AssertRequest
     # 
     def must_have(*args, &block)
       add_child(true, *args, &block)
-    end
-    
-    # Use this directive to specify elements that are allowed (but not required) to be in the
-    # params hash. Has the exact same syntax as must_have, above. The two directives can
-    # be used interchangably in any params declaration. Example:
-    #
-    #   assert_request do |r|
-    #     r.params.must_have :person do |person|
-    #       person.must_have :name
-    #       person.may_have :age, :height
-    #     end
-    #   end
-    #
-    # This states that the params hash must contain params[:person][:name],
-    # but it may or may not contain params[:person][:age] or params[:person][:height].
-    #
-    def may_have(*args, &block)
-      add_child(false, *args, &block)
     end
     
     # Use this directive to specify one or more elements that must *not* appear in the params hash. This 
