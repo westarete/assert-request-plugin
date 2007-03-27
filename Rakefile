@@ -30,16 +30,30 @@ task :stats do
 end
 
 namespace :db do
+  
+  desc "Migrate the database through scripts in db/migrate. Target specific version with VERSION=x"
+  task :migrate => :environment do
+    ActiveRecord::Migrator.migrate("db/migrate/", ENV["VERSION"] ? ENV["VERSION"].to_i : nil)
+    Rake::Task["db:schema:dump"].invoke if ActiveRecord::Base.schema_format == :ruby
+  end
+  
+  namespace :schema do
+    desc "Create a db/schema.rb file that can be portably used against any DB supported by AR"
+    task :dump => :environment do
+      require 'active_record/schema_dumper'
+      File.open(ENV['SCHEMA'] || "db/schema.rb", "w") do |file|
+        ActiveRecord::SchemaDumper.dump(ActiveRecord::Base.connection, file)
+      end
+    end
+  end
+  
   namespace :test do
     desc 'Prepare the test database and load the schema'
     task :prepare => :environment do
       config = YAML::load(IO.read(File.join(RAILS_ROOT, 'config', 'database.yml')))
       ActionController::Base.logger = ActiveRecord::Base.logger = Logger.new(File.join(RAILS_ROOT, 'log', "#{RAILS_ENV}.log"))
       ActiveRecord::Base.establish_connection(config[RAILS_ENV])
-      # Only rebuild the database if it doesn't exist (presumes sqlite3).
-      unless File.exist?(config[RAILS_ENV][:dbfile])
-        load(File.join(RAILS_ROOT, 'db', 'schema.rb')) 
-      end
+      Rake::Task["db:migrate"].invoke
     end 
   end
 end
