@@ -1,3 +1,6 @@
+* No need for "method" declarations in restful routes, since routing rules
+  out any errors here.
+
 * Add support for collections. From the AWDwR book:
 
     If you need to edit multiple objects from the same model on one form, add
