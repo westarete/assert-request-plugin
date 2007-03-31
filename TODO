@@ -1,5 +1,8 @@
 * No need for "method" declarations in restful routes, since routing rules
-  out any errors here.
+  out any errors here. Instead, if method is not declared in assert_request
+  call, then ignore method. Same behavior for protocol. This allows you to
+  declare params, but not worry about method (it's already handled). This
+  behavior makes more sense anyway.
 
 * Add support for collections. From the AWDwR book:
 
