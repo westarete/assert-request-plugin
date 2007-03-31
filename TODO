@@ -2,7 +2,15 @@
   out any errors here. Instead, if method is not declared in assert_request
   call, then ignore method. Same behavior for protocol. This allows you to
   declare params, but not worry about method (it's already handled). This
-  behavior makes more sense anyway.
+  behavior makes more sense anyway. Perhaps have same behavior for params;
+  if params must be empty, then use:
+  
+    assert_request do |r|
+      r.method :get
+      r.params.must_be_empty
+    end
+
+  This would be more specific -- if something isn't specified, it's ignored.      
 
 * Add support for collections. From the AWDwR book:
 
