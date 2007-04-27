@@ -26,7 +26,7 @@ module AssertRequest
     #   AssertRequest::ParamRules.ignore_params << "orientation"
     #
     cattr_accessor :ignore_params
-    @@ignore_params = %w( action controller commit _method )
+    @@ignore_params = %w( action controller commit _method format )
 
     # The columns in ActiveRecord models that we should ignore by
     # default when expanding an is_a directive into a series of 
